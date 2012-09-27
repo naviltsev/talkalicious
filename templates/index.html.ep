@@ -1,0 +1,27 @@
+% layout 'default';
+% title 'View all posts';
+
+% use Date::Manip;
+
+% foreach my $post(@$posts) {
+	% next if $post->is_hidden;
+	<div class="row">
+		<div class="span4">
+			<div>
+				<h2><%= $post->article->title %></h2>
+			</div>
+		</div>
+		<div class="span8">
+			<%= $post->article->date %>, by <%= $post->article->author->username %>
+			<br />
+			<div>
+				<%= $post->article->body %><br />
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="span12">&nbsp;</div>
+	</div>
+% }
+
+

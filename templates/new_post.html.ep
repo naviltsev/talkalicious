@@ -1,0 +1,12 @@
+% layout 'default';
+% title 'Create/edit post';
+
+Creating new post / Editing existing
+
+%= form_for '/new_post' => (method => 'POST') => begin
+	%= text_field 'title'
+	%= text_area 'body'
+	%= submit_button 'Save it'
+% end
+
+

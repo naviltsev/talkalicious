@@ -1,0 +1,45 @@
+% layout 'default';
+% title 'View my posts';
+
+% use Date::Manip;
+
+% foreach my $post(@$posts) {
+	<div class="row">
+		<div class="span4">
+			<div>
+				<% if ($post->is_hidden) { %>
+					<h2 class="muted"><%= $post->article->title %></h2>
+				<% } else { %>
+					<h2><%= $post->article->title %></h2>
+				<% } %>
+			</div>
+			<div>
+				% my $post_id = kioku->object_to_id($post);
+
+				<% if ($post->article->author->username eq session->{logged_in_username}) { %>
+					<%= link_to "Edit..." => '/edit_post/?post_id=' . $post_id %> |
+					<% if ($post->is_hidden) { %>
+						<%= link_to "Show..." => '/post_set_visibility/' . $post_id . '/0' %>
+					<% } else { %>
+						<%= link_to "Hide..." => '/post_set_visibility/' . $post_id . '/1' %>
+					<% } %>
+					|
+					<%= link_to "Delete..." => '/delete_post/' . $post_id %>
+				<% } %>
+			</div>
+
+		</div>
+		<div class="span8">
+			<%= $post->article->date %>, by <%= $post->article->author->username %>
+			<br />
+			<div>
+				<%= $post->article->body %><br />
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="span12">&nbsp;</div>
+	</div>
+% }
+
+

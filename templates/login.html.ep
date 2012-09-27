@@ -1,0 +1,22 @@
+% layout 'default';
+% title 'Login';
+
+% if (my $error = stash 'error') {
+	%= $error 
+% }
+
+<div class="row">
+	<div class="span4 offset4">
+		%= form_for '/login' => (method => 'POST') => begin
+			<label for="login">Username</label>
+			%= text_field 'login'
+
+			<label for="password">Password</label>
+			%= password_field 'password'
+
+			<br />
+			%= submit_button 'Login', class => 'btn'
+		% end
+	</div>
+</div>
+

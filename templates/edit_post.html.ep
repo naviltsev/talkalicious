@@ -1,0 +1,13 @@
+% layout 'default';
+% title 'Create/edit post';
+
+Creating new post / Editing existing
+
+%= form_for '/edit_post' => (method => 'POST') => begin
+	%= text_field 'title', $post->article->title
+	%= text_area 'body', $post->article->body
+	%= hidden_field 'post_id', kioku->object_to_id($post)
+	%= submit_button 'Save it'
+% end
+
+
