@@ -30,7 +30,10 @@ any ['GET', 'POST'] => '/login' => sub {
 	if ($self->req->method eq 'POST') {	
 		my $username = $self->param('login');
 		my $user = DB_Backend->find_user_by_username($username);
-		if ($user->is_password_correct($self->param('password'))) {
+		
+		$self->app->log->debug(Dumper $user);
+
+		if ($user && $user->is_password_correct($self->param('password'))) {
 			$self->session(logged_in_username => $username);
 			$self->redirect_to($self->url_for('post_list'));
 		} else {
