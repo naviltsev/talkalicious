@@ -1,22 +1,25 @@
 % layout 'default';
 % title 'Login';
 
-% if (my $error = stash 'error') {
-	%= $error 
-% }
-
 <div class="row">
-	<div class="span4 offset4">
-		%= form_for '/login' => (method => 'POST') => begin
-			<label for="login">Username</label>
-			%= text_field 'login'
+	<div class="span4 offset4 well">
+		<legend>Please Sign In</legend>
 
-			<label for="password">Password</label>
-			%= password_field 'password'
+		% if (my $error = stash 'error') {
+	      	<div class="alert alert-error">
+	            <a class="close" data-dismiss="alert" href="#">×</a>
+	            <%= $error %>
+	        </div>
+		% }
 
-			<br />
-			%= submit_button 'Login', class => 'btn'
+		<form method="POST" action="" accept-charset="UTF-8">
+		%= form_for 'login' => (method => 'POST') => begin
+			%= text_field 'login', placeholder => 'Username', class => 'span4'
+			%= password_field 'password', placeholder => 'Password', class => 'span4'
+            <label class="checkbox">
+            	<input type="checkbox" name="remember" value="1"> Remember Me
+            </label>
+			%= submit_button 'Log in', class => 'btn btn-info btn-block'
 		% end
 	</div>
 </div>
-

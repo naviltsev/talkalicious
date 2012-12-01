@@ -9,6 +9,8 @@ use Digest::SHA qw(sha1_hex);
 has "article", isa => "Article", is => "rw", required => 1;
 has "is_hidden", isa => "Bool", is => "rw", required => 1, default => '0';
 
+has "comments", isa => "ArrayRef[Comment]", is => "rw", required => 0;
+
 sub store_to_db {
 	my $self = shift;
 	my $kioku = DB_Backend->kioku;

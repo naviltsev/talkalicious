@@ -4,28 +4,30 @@
 		<title><%= title %></title>
 	    <meta charset="utf-8">
 	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	    <meta name="description" content="">
-	    <meta name="author" content="">
+	    <meta name="description" content="Blog engine using Perl/Moose/KiokuDB">
+	    <meta name="author" content="Nikolay Aviltsev">
 	    <!-- Le styles -->
 
-	    %= stylesheet '/css/bootstrap.css'
+	    %= stylesheet '/components/bootstrap/css/bootstrap.css'
+		%= stylesheet '/components/bootstrap/css/bootstrap-responsive.css'
+		%= stylesheet '/components/bootstrap-wysihtml5/dist/bootstrap-wysihtml5-0.0.2.css'
+		%= stylesheet '/css/style.css'
+
 	    %= stylesheet begin
 	    	body { padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */ }
 	    % end
-		%= stylesheet '/css/bootstrap-responsive.css'
 	    
 	    <!--[if lt IE 9]>
 			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js">
 			</script>
 	    <![endif]-->
-	    <link rel="shortcut icon" src="/ico/favicon.ico">
-	    <link rel="apple-touch-icon-precomposed" sizes="144x144" src="/ico/apple-touch-icon-144-precomposed.png">
-	    <link rel="apple-touch-icon-precomposed" sizes="114x114" src="/ico/apple-touch-icon-114-precomposed.png">
-	    <link rel="apple-touch-icon-precomposed" sizes="72x72" src="/ico/apple-touch-icon-72-precomposed.png">
-	    <link rel="apple-touch-icon-precomposed" src="/ico/apple-touch-icon-57-precomposed.png">
 
-		%= javascript 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js' 
-		%= javascript '/js/bootstrap.js'
+		%= javascript '/components/jquery/jquery.min.js' 
+		%#= javascript '/components/bootstrap/...'
+
+		%= javascript '/components/wysihtml5/parser_rules/advanced.js'
+		%= javascript '/components/wysihtml5/dist/wysihtml5-0.3.0.js'
+		%= javascript '/components/bootstrap-wysihtml5/dist/bootstrap-wysihtml5-0.0.2.js'
 	</head>
 
 	<body>
@@ -38,10 +40,14 @@
 					</a>
 					<ul class="nav">
 						<li>
-							<%= link_to "New post..." => 'new_post' %>
+							<% if (session->{logged_in_username}) { %>
+								<%= link_to "New post..." => 'post' %>
+							<% } %>
 						</li>
 						<li>
-							<%= link_to "My posts" => 'post_list' %>
+							<% if (session->{logged_in_username}) { %>
+								<%= link_to "My posts" => 'post_list' %>
+							<% } %>
 						</li>
 						<li>
 							<% if (session->{logged_in_username}) { %>

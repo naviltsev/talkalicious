@@ -1,0 +1,9 @@
+{
+  "name": "mkdb-blog-perl",
+  "version": "0.0.0",
+  "dependencies": {
+    "jquery": "~1.8.3",
+    "bootstrap": "~2.2.1",
+    "wysihtml5": "~0.3.0"
+  }
+}

@@ -23,15 +23,12 @@ get '/' => sub {
   $self->render('index', posts => \@all_posts);
 };
 
-
 any ['GET', 'POST'] => '/login' => sub {
 	my $self = shift;
 
 	if ($self->req->method eq 'POST') {	
 		my $username = $self->param('login');
 		my $user = DB_Backend->find_user_by_username($username);
-		
-		$self->app->log->debug(Dumper $user);
 
 		if ($user && $user->is_password_correct($self->param('password'))) {
 			$self->session(logged_in_username => $username);
@@ -70,28 +67,48 @@ get '/my_posts' => sub {
 	$self->render('my_posts', posts => \@posts);
 } => 'post_list';
 
-any ['GET', 'POST'] => '/edit_post' => sub {
+get '/post' => sub {
 	my $self = shift;
 
-	my $post_id = $self->param('post_id') || return;
+	my $post_id = $self->param('post_id');
 
-	my $s = $self->kioku->new_scope;
-	my $post = $self->kioku->lookup($post_id);
+	if ($post_id) {
+		my $s = $self->kioku->new_scope;
+		my $post = $self->kioku->lookup($post_id);
 
-	return $self->render(text => '404')
-		unless $post;
+		$self->stash(post => $post);
 
-	if ($self->req->method eq 'POST') {
+		return $self->render(text => '404')
+			unless $post;
+	}
+};
+
+post '/post' => sub {
+	my $self = shift;
+
+	my $post_id = $self->param('post_id');
+
+	if ($post_id) { # edit post
+		my $s = $self->kioku->new_scope;
+		my $post = $self->kioku->lookup($post_id);
+
+		return $self->render(text => '404')
+			unless $post;
+
 		$post->article->title($self->param('title'));
 		$post->article->body($self->param('body'));
-
 		$self->kioku->deep_update($post);
-		$self->redirect_to($self->url_for('post_list'));
+	} else { # new post
+		my $title = $self->param('title');
+		my $body = $self->param('body');
+
+		my $article = Article->new(title => $title, body => $body, author => DB_Backend->find_user_by_username($self->session('logged_in_username')));
+		my $post = Post->new(article => $article);
+		$post->store_to_db;
 	}
 
-	$self->stash(post => $post);
-	$self->render('edit_post');
-};
+	$self->redirect_to($self->url_for('post_list'));
+} => 'post';
 
 get '/delete_post/:post_id' => sub {
 	my $self = shift;
@@ -131,23 +148,5 @@ get '/post_set_visibility/:post_id/:should_hide' => sub {
 
 	$self->redirect_to('post_list');
 };
-
-any ['GET', 'POST'] => '/new_post' => sub {
-	my $self = shift;
-
-	if ($self->req->method eq 'POST') {
-		my $title = $self->param('title');
-		my $body = $self->param('body');
-
-		my $article = Article->new(title => $title, body => $body, author => DB_Backend->find_user_by_username($self->session('logged_in_username')));
-		my $post = Post->new(article => $article);
-		$post->store_to_db;
-
-		$self->redirect_to($self->url_for('post_list'));
-	}
-
-	$self->render('new_post');
-};
-
 
 app->start;
