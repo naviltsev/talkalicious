@@ -60,11 +60,11 @@ under sub {
 	return $self->redirect_to('login');
 };
 
-get '/my_posts' => sub {
+get '/posts' => sub {
 	my $self = shift;
 
 	my @posts = DB_Backend->find_posts_by_author($self->session('logged_in_username'));;
-	$self->render('my_posts', posts => \@posts);
+	$self->render('posts', posts => \@posts);
 } => 'post_list';
 
 get '/post' => sub {
@@ -96,13 +96,20 @@ post '/post' => sub {
 			unless $post;
 
 		$post->article->title($self->param('title'));
+		$post->article->excerpt($self->param('excerpt'));
 		$post->article->body($self->param('body'));
 		$self->kioku->deep_update($post);
 	} else { # new post
 		my $title = $self->param('title');
 		my $body = $self->param('body');
+		my $excerpt = $self->param('excerpt');
 
-		my $article = Article->new(title => $title, body => $body, author => DB_Backend->find_user_by_username($self->session('logged_in_username')));
+		my $article = Article->new(
+			title => $title, 
+			body => $body, 
+			excerpt => $excerpt, 
+			author => DB_Backend->find_user_by_username($self->session('logged_in_username'))
+		);
 		my $post = Post->new(article => $article);
 		$post->store_to_db;
 	}

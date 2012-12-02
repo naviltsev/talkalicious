@@ -9,6 +9,17 @@ use Date::Manip;
 use Digest::SHA qw(sha1_hex);
 
 has "title", isa => "Str", is => "rw", required => 1;
+
+has 'excerpt' => (
+	isa 	=> "Str",
+	is 		=> "rw",
+	lazy => 1,
+	default => sub {
+		my $self = shift;
+		return substr($self->body, 0, 100);
+	}
+);
+
 has "body", isa => "Str", is => "rw", required => 1;
 
 has "author", isa => "User", is => "rw", required => 1;
@@ -18,8 +29,6 @@ has "date" => (
 	is => "rw",
 	default => sub { UnixDate('now', "%Y-%m-%d, %H:%M") },
 );
-
-
 
 # returns UUID
 sub store_to_db {
@@ -31,7 +40,6 @@ sub store_to_db {
 
 	return $kioku->store($self);
 }
-
 
 __PACKAGE__->meta->make_immutable;
 

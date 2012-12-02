@@ -1,8 +1,8 @@
-#post-title {
-	width: 810px;
+#wysihtml5-excerpt {
+	height: 100px;
 }
 
-#wysihtml5-textarea {
-	width: 810px;
+#wysihtml5-body {
+	/*width: 810px;*/
 	height: 500px;
 }

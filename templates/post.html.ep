@@ -4,6 +4,7 @@
 % my $post = stash 'post';
 % my $post_title = $post ? $post->article->title : '';
 % my $post_body = $post ? $post->article->body : '';
+% my $post_excerpt = $post ? $post->article->excerpt : '';
 % my $post_id = $post ? kioku->object_to_id($post) : '';
 
 <div class="row">
@@ -11,7 +12,8 @@
 		Creating new post / Editing existing
 		%= form_for '/post' => (method => 'POST') => begin
 			%= text_field 'title', $post_title, id => 'post-title', class => 'span8'
-			%= text_area 'body', $post_body, id => 'wysihtml5-textarea', class => 'span8'
+			%= text_area 'excerpt', $post_excerpt, id => 'wysihtml5-excerpt', class => 'span8'
+			%= text_area 'body', $post_body, id => 'wysihtml5-body', class => 'span8'
 			%= hidden_field 'post_id', $post_id
 			%= submit_button 'Save it', class => 'btn'
 		% end
@@ -19,7 +21,7 @@
 </div>
 
 %= javascript begin
-	$('#wysihtml5-textarea').wysihtml5({
+	$('#wysihtml5-body').wysihtml5({
 		"stylesheets": ["/components/bootstrap-wysihtml5/lib/css/wysiwyg-color.css"]
 	});
 % end

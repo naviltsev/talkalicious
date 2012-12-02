@@ -21,7 +21,7 @@
 	      </div>
 	      <div class="span6">
 	        <p>
-	          <%== $post->article->body %><br /> <!-- Should be excerpt here -->
+	          <%== $post->article->excerpt %><br />
 	        </p>
 	        <p><a class="btn" href="#">Read more</a></p>
 	      </div>
