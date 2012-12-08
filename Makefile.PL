@@ -9,7 +9,8 @@ WriteMakefile(
   	'Mojolicious' => '3.64',
   	'KiokuDB' => '0',
   	'MojoX::Validator' => 0,
-  	'MooseX::Singleton' => 0
+  	'MooseX::Singleton' => 0,
+  	'Date::Manip' => 0
   },
   test      => {TESTS => 't/*.t'}
 );
