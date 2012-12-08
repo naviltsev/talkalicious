@@ -3,6 +3,12 @@
 
 % use Date::Manip;
 
+% if (my $message = stash 'message') {
+	<div class="alert alert-success">
+		<%= $message %>
+	</div>
+% }
+
 % foreach my $post(@$posts) {
 	% next if $post->is_hidden;
 

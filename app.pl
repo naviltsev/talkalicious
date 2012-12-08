@@ -8,13 +8,20 @@ use Article;
 use User;
 
 use Data::Dumper;
+use Digest::SHA qw(sha1_hex);
 
 # Documentation browser under "/perldoc"
 # plugin 'PODRenderer';
-plugin 'validator' => {
-	messages => {
-		REQUIRED => 'required'
-	}
+
+plugin 'validator';
+plugin 'mail' => {
+	from => 'www@mkdb-blog-perl',
+	type => 'text/html'
+};
+plugin 'recaptcha' => {
+	public_key => '6LeqINoSAAAAAPiP1RACGh5rilIkHTDsxwusQRjn',
+	private_key => '6LeqINoSAAAAACQA5S9QqMneHkO0E0omPHMP1MVQ', # keep this in secret!
+	lang => 'en'
 };
 
 helper kioku => sub {
@@ -33,7 +40,7 @@ any ['GET', 'POST'] => '/login' => sub {
 
 	if ($self->req->method eq 'POST') {	
 		my $username = $self->param('login');
-		my $user = DB_Backend->find_user_by_username($username);
+		my $user = DB_Backend->find_user(username => $username, is_active => 1);
 
 		if ($user && $user->is_password_correct($self->param('password'))) {
 			$self->session(logged_in_username => $username);
@@ -45,6 +52,94 @@ any ['GET', 'POST'] => '/login' => sub {
 
 	$self->render('login');
 } => 'login';
+
+get '/confirmation' => sub {
+	my $self = shift;
+	my $confirmation_key = $self->param('key');
+
+	return unless $confirmation_key;
+
+	$self->app->log->debug($confirmation_key);
+
+	my $user = DB_Backend->find_user(confirmation_key => $confirmation_key);
+	if ($user) {
+		$self->flash(flash => 'Thanks for registering with us. Your account is now active and you can sign in.');
+
+		$self->kioku->new_scope && $user->is_active(1) && $self->kioku->deep_update($user);
+		
+		$self->redirect_to('login');
+	} else {
+		$self->redirect_to('/');
+	}
+};
+
+any ['GET', 'POST'] => '/signup' => sub {
+	my $self = shift;
+
+	return unless $self->req->method eq 'POST';
+
+	$self->recaptcha;
+
+	my $val = $self->create_validator;
+	$val->field([qw/fullname username password1 password2 email/])->each(sub { shift->required(1)->length(1,64) });
+	$val->group('equal_passwords' => [qw/password1 password2/])->equal;
+	$val->field('email')->email;
+
+	if (!$self->validate($val)) {
+		$self->stash(error => 'Please correct following errors');
+		return;
+	}
+
+	if (DB_Backend->find_user(username => $self->param('username'))) {
+		$self->stash(error => 'This username is taken, please choose another one');
+		return;	
+	}
+	
+	if (DB_Backend->find_user(email => $self->param('email'))) {
+		$self->stash(error => 'This email address is taken, please choose another one');
+		return;	
+	}
+	
+	if ($self->stash('recaptcha_error')) {
+		$self->stash(error => 'reCAPTCHA error, please try again');
+		return;	
+	}
+		
+
+	# send email first!
+
+	my $user = User->new(
+		username => $self->param('username'), 
+		password => sha1_hex($self->param('password1')),
+		email => $self->param('email'),
+		fullname => $self->param('fullname'),
+		is_active => 0,
+		confirmation_key => sha1_hex(localtime . rand())
+	);
+
+	$user->store_to_db;
+
+	my $username = $user->fullname;
+	my $link = "http://mkdb-blog-perl.herokuapp.com/confirmation?key=".$user->confirmation_key;
+
+	$self->mail(
+		to => $self->param('email'),
+		subject => 'Account confirmation on mkdb-blog-perl',
+		data => "
+		Dear $username.
+
+		You've just registered an account on mkdb-blog-perl.
+		In order to activate your account please follow the link:
+		<a href='$link'>$link</a>
+
+		Sincerely yours, 
+		mkdb-blog-perl team.
+		"
+	);
+
+	$self->redirect_to($self->url_for('confirmation'));
+};
+
 
 get '/logout' => sub {
 	my $self = shift;
@@ -94,7 +189,7 @@ post '/post' => sub {
 	my $post_id = $self->param('post_id');
 
 	my $val = $self->create_validator;
-	$val->field($_)->required(1) for qw/title excerpt body/;
+	$val->field([qw/title excerpt body/])->each(sub {shift->required(1)} );
 
 	return unless $self->validate($val);
 
@@ -118,7 +213,7 @@ post '/post' => sub {
 			title => $title, 
 			body => $body, 
 			excerpt => $excerpt,
-			author => DB_Backend->find_user_by_username($self->session('logged_in_username'))
+			author => DB_Backend->find_user(username => $self->session('logged_in_username'))
 		);
 		my $post = Post->new(article => $article);
 		$post->store_to_db;

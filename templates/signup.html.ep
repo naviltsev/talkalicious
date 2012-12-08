@@ -1,0 +1,44 @@
+% layout 'default';
+% title 'Sign in';
+
+<div class="row">
+	<div class="span4 offset4 well">
+		<legend>Register new user</legend>
+
+		% if (my $error = stash 'error') {
+	      	<div class="alert alert-error">
+	            <%= $error %>
+	        </div>
+		% }
+
+		<form method="POST" action="" accept-charset="UTF-8">
+		%= form_for 'signup' => (method => 'POST') => begin
+			%= text_field 'fullname', placeholder => 'Your name', class => 'span4'
+			<% if (validator_error 'lastname') {%><p class="text-error"><small>* required</small></p><% } %>
+
+			%= text_field 'username', placeholder => 'Username', class => 'span4'
+			<% if (validator_error 'username') {%><p class="text-error"><small>* required</small></p><% } %>
+
+			%= password_field 'password1', placeholder => 'Password', class => 'span4'
+			<% if (validator_error 'password1') {%><p class="text-error"><small>* required</small></p><% } %>
+
+			%= password_field 'password2', placeholder => 'Repeat password', class => 'span4'
+			<% if (validator_error 'password2') {%>
+				<p class="text-error"><small>* required</small></p>
+			<% } elsif (validator_error 'equal_passwords') { %>
+				<p class="text-error"><small>* passwords should be equal</small></p>
+			<% } %>
+
+			%= text_field 'email', placeholder => 'Email', class => 'span4'
+			<% if (validator_error 'username') {%>
+				<p class="text-error"><small>* email is not valid</small></p>
+			<% } else { %>
+				<p class="muted"><small>* please enter your real email address</small></p>
+			<% } %>
+
+			<p><%= recaptcha_html %></p>
+
+			%= submit_button 'Sign up', class => 'btn btn-info btn-block'
+		% end
+	</div>
+</div>

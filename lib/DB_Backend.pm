@@ -21,6 +21,18 @@ has kioku => (
 					data_type => 'varchar',
 					is_nullable => 1,
 				},
+				email => {
+					data_type => 'varchar',
+					is_nullable => 1,
+				},
+				is_active => {
+					data_type => 'bool',
+					is_nullable => 1,
+				},
+				confirmation_key => {
+					data_type => 'varchar',
+					is_nullable => 1,
+				}
 			],
 			# This gets called against each object being added into database, building gin_index table with entries.
 			# Later on it will be possible to build simple queries with Search::GIN::Quey
@@ -52,13 +64,18 @@ has kioku => (
 );
 
 # returns User instance
-sub find_user_by_username {
-	my ($self, $username) = @_;
+sub find_user {
+	my ($self, %condition) = @_;
+
+	unless (grep { $condition{$_} } qw/username fullname email is_active confirmation_key/) {
+		warn qq/Can only find by 'username', 'fullname', 'email', 'is_active', 'confirmation_key'/;
+		return;
+	}
 
 	my $kioku = $self->kioku;
 	my $s = $kioku->new_scope;
 
-	my $stream = $kioku->search({username => $username});
+	my $stream = $kioku->search(\%condition);
 	while (my $block = $stream->next) {
 		foreach my $obj(@$block) {
 			return $obj;

@@ -1,24 +1,33 @@
 % layout 'default';
-% title 'Login';
+% title 'Sign in';
 
 <div class="row">
 	<div class="span4 offset4 well">
-		<legend>Please Sign In</legend>
+		<legend>Sign in</legend>
 
 		% if (my $error = stash 'error') {
 	      	<div class="alert alert-error">
-	            <a class="close" data-dismiss="alert" href="#">×</a>
 	            <%= $error %>
 	        </div>
 		% }
+
+		% if (my $flash = flash 'flash') {
+	      	<div class="alert alert-success">
+	            <%= $flash %>
+	        </div>
+		% }
+
 
 		<form method="POST" action="" accept-charset="UTF-8">
 		%= form_for 'login' => (method => 'POST') => begin
 			%= text_field 'login', placeholder => 'Username', class => 'span4'
 			%= password_field 'password', placeholder => 'Password', class => 'span4'
-            <label class="checkbox">
-            	<input type="checkbox" name="remember" value="1"> Remember Me
-            </label>
+			<p>
+	            <label class="checkbox">
+	            	<input type="checkbox" name="remember" value="1"> Remember me</input>
+	            </label>
+	            <a href="<%= url_for 'signup' %>">Don't have an account yet?</a>
+	        </p>
 			%= submit_button 'Log in', class => 'btn btn-info btn-block'
 		% end
 	</div>

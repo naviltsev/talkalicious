@@ -10,6 +10,11 @@ use Digest::SHA qw(sha1_hex);
 has "username", isa => "Str", is => "rw";
 has "password", isa => "Str", is => "rw";
 has "fullname", isa => "Str", is => "rw";
+has "email", isa => "Str", is => "rw";
+
+has "is_active", isa => "Bool", is => "rw", default => 0;
+
+has "confirmation_key", isa => "Str", is => "rw";
 
 sub store_to_db {
 	my $self = shift;
@@ -17,7 +22,7 @@ sub store_to_db {
 	my $s = $kioku->new_scope;
 
 	# Check if user exists
-	my $existing_user = DB_Backend->find_user_by_username($self->username);
+	my $existing_user = DB_Backend->find_user(username => $self->username);
 	if ($existing_user) {
 		warn "User " . $self->username . " exists, won't add another one";
 		return;

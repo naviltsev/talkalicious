@@ -49,11 +49,11 @@
 								<%= link_to "My posts" => 'post_list' %>
 							<% } %>
 						</li>
-						<li>
+						<li class="pull-right">
 							<% if (session->{logged_in_username}) { %>
 								<%= link_to "Logout" => 'logout' %>
 							<% } else { %>
-								<%= link_to "Login" => 'login' %>
+								<%= link_to "Sign in" => 'login' %>
 							<% } %>
 						</li>
 					</ul>
