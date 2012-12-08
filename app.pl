@@ -10,7 +10,12 @@ use User;
 use Data::Dumper;
 
 # Documentation browser under "/perldoc"
-plugin 'PODRenderer';
+# plugin 'PODRenderer';
+plugin 'validator' => {
+	messages => {
+		REQUIRED => 'required'
+	}
+};
 
 helper kioku => sub {
 	return DB_Backend->kioku;
@@ -88,6 +93,11 @@ post '/post' => sub {
 
 	my $post_id = $self->param('post_id');
 
+	my $val = $self->create_validator;
+	$val->field($_)->required(1) for qw/title excerpt body/;
+
+	return unless $self->validate($val);
+
 	if ($post_id) { # edit post
 		my $s = $self->kioku->new_scope;
 		my $post = $self->kioku->lookup($post_id);
@@ -107,7 +117,7 @@ post '/post' => sub {
 		my $article = Article->new(
 			title => $title, 
 			body => $body, 
-			excerpt => $excerpt, 
+			excerpt => $excerpt,
 			author => DB_Backend->find_user_by_username($self->session('logged_in_username'))
 		);
 		my $post = Post->new(article => $article);

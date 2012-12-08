@@ -9,11 +9,18 @@
 
 <div class="row">
 	<div class="offset2 span8">
-		Creating new post / Editing existing
+		<h4>Manage post</h4>
 		%= form_for '/post' => (method => 'POST') => begin
-			%= text_field 'title', $post_title, id => 'post-title', class => 'span8'
-			%= text_area 'excerpt', $post_excerpt, id => 'wysihtml5-excerpt', class => 'span8'
-			%= text_area 'body', $post_body, id => 'wysihtml5-body', class => 'span8'
+			<div class="control-group <% if (validator_error('title')) { %> error <% } %>">
+				%= text_field 'title', $post_title, id => 'post-title', class => 'span8', placeholder => 'Title'
+			</div>
+			<div class="control-group <% if (validator_error('excerpt')) { %> error <% } %>">
+				%= text_area 'excerpt', $post_excerpt, id => 'wysihtml5-excerpt', class => 'span8', placeholder => 'Excerpt'
+			</div>
+			<div class="control-group <% if (validator_error('body')) { %> error <% } %>">
+				%= text_area 'body', $post_body, id => 'wysihtml5-body', class => 'span8', placeholder => 'Body'
+			</div>
+
 			%= hidden_field 'post_id', $post_id
 			%= submit_button 'Save it', class => 'btn'
 		% end

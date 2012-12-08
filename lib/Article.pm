@@ -12,12 +12,7 @@ has "title", isa => "Str", is => "rw", required => 1;
 
 has 'excerpt' => (
 	isa 	=> "Str",
-	is 		=> "rw",
-	lazy => 1,
-	default => sub {
-		my $self = shift;
-		return substr($self->body, 0, 100);
-	}
+	is 		=> "rw"
 );
 
 has "body", isa => "Str", is => "rw", required => 1;
