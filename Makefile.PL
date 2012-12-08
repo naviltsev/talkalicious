@@ -8,7 +8,8 @@ WriteMakefile(
   PREREQ_PM => {
   	'Mojolicious' => '3.64',
   	'KiokuDB' => '0',
-  	'MojoX::Validator'
+  	'MojoX::Validator' => 0,
+  	'MooseX::Singleton' => 0
   },
   test      => {TESTS => 't/*.t'}
 );
