@@ -1,0 +1,3 @@
+[submodule "vendor/Mojolicious-Plugin-Email"]
+	path = vendor/Mojolicious-Plugin-Email
+	url = https://github.com/raulmatei/Mojolicious-Plugin-Email.git
