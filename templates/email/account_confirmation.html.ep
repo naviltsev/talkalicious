@@ -1,0 +1,7 @@
+Dear <%= $username %>.<br /><br />
+
+You've just registered an account on mkdb-blog-perl.<br />
+In order to activate your account please follow the link: <a href='<%= $link %>'><%= $link %></a>
+<br /><br />
+Sincerely yours, <br />
+mkdb-blog-perl team.

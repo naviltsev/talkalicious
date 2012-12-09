@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 use Mojolicious::Lite;
-use lib qw(lib);
+use lib qw(lib vendor/Mojolicious-Plugin-Email/lib);
 
 use DB_Backend;
 use Post;
@@ -9,19 +9,21 @@ use User;
 
 use Data::Dumper;
 use Digest::SHA qw(sha1_hex);
+use Email::Sender::Transport::SMTP::TLS;
 
-# Documentation browser under "/perldoc"
-# plugin 'PODRenderer';
+my $mode = app->mode || 'production';
+my $conf = plugin 'config' => { file => "config/$mode.conf" };
 
 plugin 'validator';
-plugin 'mail' => {
-	from => 'www@mkdb-blog-perl',
-	type => 'text/html'
+plugin 'email' => {
+	from => $conf->{email}{from},
+	transport => $conf->{email}{transport}
 };
+
 plugin 'recaptcha' => {
-	public_key => '6LeqINoSAAAAAPiP1RACGh5rilIkHTDsxwusQRjn',
-	private_key => '6LeqINoSAAAAACQA5S9QqMneHkO0E0omPHMP1MVQ', # keep this in secret!
-	lang => 'en'
+	public_key => $conf->{recaptcha}{public_key},
+	private_key => $conf->{recaptcha}{private_key},
+	lang => $conf->{recaptcha}{lang}
 };
 
 helper kioku => sub {
@@ -104,9 +106,6 @@ any ['GET', 'POST'] => '/signup' => sub {
 		$self->stash(error => 'reCAPTCHA error, please try again');
 		return;	
 	}
-		
-
-	# send email first!
 
 	my $user = User->new(
 		username => $self->param('username'), 
@@ -120,21 +119,21 @@ any ['GET', 'POST'] => '/signup' => sub {
 	$user->store_to_db;
 
 	my $username = $user->fullname;
-	my $link = "http://mkdb-blog-perl.herokuapp.com/confirmation?key=".$user->confirmation_key;
+	my $link = "http://$conf->{domain}/confirmation?key=".$user->confirmation_key;
 
-	$self->mail(
-		to => $self->param('email'),
-		subject => 'Account confirmation on mkdb-blog-perl',
-		data => "
-		Dear $username.
-
-		You've just registered an account on mkdb-blog-perl.
-		In order to activate your account please follow the link:
-		<a href='$link'>$link</a>
-
-		Sincerely yours, 
-		mkdb-blog-perl team.
-		"
+	$self->email(
+		header => [
+			To => $self->param('email'),
+			Subject => $conf->{email}{subjects}{account_confirmation}
+		],
+		data => [
+			template => 'email/account_confirmation',
+			username => $username,
+			link => $link
+		],
+		content_type => 'text/html',
+		charset => 'utf8',
+		format => 'html'
 	);
 
 	$self->redirect_to($self->url_for('confirmation'));
@@ -226,7 +225,7 @@ get '/delete_post/:post_id' => sub {
 	my $self = shift;
 	my $post_id = $self->param('post_id');
 
-	# TODO: I would also check if this post is mine - random user can not just delete any post
+	# TODO: Check if this post is mine - random user can not just delete any post
 
 	my $s = $self->kioku->new_scope;
 	my $post = $self->kioku->lookup($post_id);

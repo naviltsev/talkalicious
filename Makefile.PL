@@ -14,6 +14,9 @@ WriteMakefile(
   	'KiokuDB::Backend::DBI' => '0',
   	'MooseX::Singleton' => '0',
   	'Date::Manip' => '0',
+  	'Email::MIME' => '0',
+  	'Email::Sender::Transport::SMTP::TLS' => '0',
+  	'Email::Sender::Transport::Sendmail' => '0'
   },
   test      => {TESTS => 't/*.t'}
 );
