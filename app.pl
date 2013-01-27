@@ -6,10 +6,15 @@ use DB_Backend;
 use Post;
 use Article;
 use User;
+use Comment;
 
 use Data::Dumper;
 use Digest::SHA qw(sha1_hex);
 use Email::Sender::Transport::SMTP::TLS;
+
+use Mojo::Util qw(url_unescape);
+
+app->secret('aVerySecretThingHere');
 
 my $mode = app->mode || 'production';
 my $conf = plugin 'config' => { file => "config/$mode.conf" };
@@ -60,8 +65,6 @@ get '/confirmation' => sub {
 	my $confirmation_key = $self->param('key');
 
 	return unless $confirmation_key;
-
-	$self->app->log->debug($confirmation_key);
 
 	my $user = DB_Backend->find_user(confirmation_key => $confirmation_key);
 	if ($user) {
@@ -147,6 +150,18 @@ get '/logout' => sub {
 	$self->redirect_to('/');
 };
 
+get '/post/:post_id' => sub {
+	my $self = shift;
+
+	my $s = $self->kioku->new_scope;
+	my $post = $self->kioku->lookup($self->param('post_id'));
+	$self->stash(post => $post);
+
+	return $self->render(text => '404')
+		unless $post;
+} => 'post';
+
+
 #
 # Auth
 #
@@ -159,6 +174,25 @@ under sub {
 	return $self->redirect_to('login');
 };
 
+post '/add_comment' => sub {
+	my $self = shift;
+
+	my $s = $self->kioku->new_scope;
+	my $post = $self->kioku->lookup($self->param('post_id'));
+
+	my $comment = Comment->new({
+		body => $self->param('comment'),
+		is_author => $post->article->author->username eq $self->session('logged_in_username'),
+		author => DB_Backend->find_user(username => $self->session('logged_in_username'))
+		# parent_comment => undef
+	});
+
+	push @{$post->comments}, $comment;
+
+	$post->store_to_db;
+	$self->redirect_to(sprintf("post/%s", $self->param('post_id')));
+};
+
 get '/posts' => sub {
 	my $self = shift;
 
@@ -166,7 +200,7 @@ get '/posts' => sub {
 	$self->render('posts', posts => \@posts);
 } => 'post_list';
 
-get '/post' => sub {
+get '/edit_post' => sub {
 	my $self = shift;
 
 	my $post_id = $self->param('post_id');
@@ -180,9 +214,9 @@ get '/post' => sub {
 		return $self->render(text => '404')
 			unless $post;
 	}
-};
+} => 'edit_post';
 
-post '/post' => sub {
+post '/edit_post' => sub {
 	my $self = shift;
 
 	my $post_id = $self->param('post_id');
@@ -219,7 +253,7 @@ post '/post' => sub {
 	}
 
 	$self->redirect_to($self->url_for('post_list'));
-} => 'post';
+} => 'edit_post';
 
 get '/delete_post/:post_id' => sub {
 	my $self = shift;
@@ -242,9 +276,6 @@ get '/post_set_visibility/:post_id/:should_hide' => sub {
 	my $post_id = $self->param('post_id');
 	my $should_hide = $self->param('should_hide');
 
-	$self->app->log->debug($post_id);
-	$self->app->log->debug($should_hide);
-
 	return $self->render(text => '404')
 		unless ($should_hide eq '0' || $should_hide eq '1');
 
@@ -254,7 +285,6 @@ get '/post_set_visibility/:post_id/:should_hide' => sub {
 	if ($post) {
 		$post->is_hidden($should_hide);
 		$self->kioku->store($post);
-		$self->app->log->debug('Storing POST >>>>>');
 	}
 
 	$self->redirect_to('post_list');

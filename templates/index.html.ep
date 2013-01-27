@@ -13,42 +13,27 @@
 	% next if $post->is_hidden;
 
 	<div class="row">
-	  <div class="span8">
-	    <div class="row">
-	      <div class="span8">
-	        <h2><strong><a href="#"><%= $post->article->title %></a></strong></h2>
-	      </div>
-	    </div>
-	    <div class="row">
-	      <div class="span2">
-	        <a href="#" class="thumbnail">
-	            <img src="http://placehold.it/260x180" alt="">
-	        </a>
-	      </div>
-	      <div class="span6">
-	        <p>
-	          <%== $post->article->excerpt %><br />
-	        </p>
-	        <p><a class="btn" href="#">Read more</a></p>
-	      </div>
-	    </div>
-	    <div class="row">
-	      <div class="span8">
-	        <p></p>
-	        <p>
-	          <i class="icon-user"></i> by <a href="#"><%= $post->article->author->username %></a> 
-	          | <i class="icon-calendar"></i> <%= $post->article->date %>
-	          | <i class="icon-comment"></i> <a href="#">3 Comments</a>
-	          | <i class="icon-share"></i> <a href="#">39 Shares</a>
-	          | <i class="icon-tags"></i> Tags : <a href="#"><span class="label label-info">Snipp</span></a> 
-	          <a href="#"><span class="label label-info">Bootstrap</span></a> 
-	          <a href="#"><span class="label label-info">UI</span></a> 
-	          <a href="#"><span class="label label-info">growth</span></a>
-	        </p>
-	      </div>
-	    </div>
-	  </div>
+		<div class="offset2 span8">
+	    	<div class="row">
+	      		<div class="span8">
+	        		<h2><strong><%= $post->article->title %></strong></h2>
+	      		</div>
+	    	</div>
+	    	<div class="row">
+	      		<div class="span2">
+			        <a href="#" class="thumbnail">
+			            <img src="http://placehold.it/260x180" alt="">
+			        </a>
+				</div>
+		    	<div class="span6">
+		        	<p>
+			        	<%== $post->article->excerpt %><br />
+			        </p>
+			        <p><a class="btn" href="<%= url_for 'post' %><%= kioku->object_to_id($post) %>">Read more</a></p>
+				</div>
+			</div>
+			%= include 'shared/post_footer', post => $post
+		</div>
 	</div>
-	<hr>
 % }
 

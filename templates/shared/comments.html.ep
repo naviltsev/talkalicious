@@ -1,0 +1,21 @@
+% my $comment_header = begin
+	% my $comment = shift;
+	<p>
+		<i class="icon-user"></i> commented by <a href="#"><%= $comment->author->username %></a>
+		| <i class="icon-calendar"></i> <%= $post->article->date %>
+		| <i class="icon-comment"></i> <a href="#">Comment</a>
+	</p>
+% end
+
+<a name="comments"></a>
+<h4>Comments</h2></a>
+
+% foreach my $comment(@{$post->comments}) {
+	<div class="well">
+		<a name="<%= kioku->object_to_id($comment) %>"></a>
+		%= $comment_header->($comment)
+		<p>
+			%= $comment->body
+		</p>
+	</div>
+% }

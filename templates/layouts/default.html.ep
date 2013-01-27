@@ -23,6 +23,7 @@
 	    <![endif]-->
 
 		%= javascript '/components/jquery/jquery.min.js' 
+		%= javascript 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js'
 		%#= javascript '/components/bootstrap/...'
 
 		%= javascript '/components/wysihtml5/parser_rules/advanced.js'
@@ -41,7 +42,7 @@
 					<ul class="nav">
 						<li>
 							<% if (session->{logged_in_username}) { %>
-								<%= link_to "New post..." => 'post' %>
+								<%= link_to "New post" => 'edit_post' %>
 							<% } %>
 						</li>
 						<li>

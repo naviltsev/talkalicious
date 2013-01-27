@@ -8,7 +8,6 @@ use Date::Manip;
 
 use Digest::SHA qw(sha1_hex);
 
-has "title", isa => "Str", is => "rw", required => 1;
 has "body", isa => "Str", is => "rw", required => 1;
 
 has "date" => (
@@ -17,12 +16,8 @@ has "date" => (
 	default => sub { UnixDate('now', "%Y-%m-%d, %H:%M") },
 );
 
-has 'user', isa => "Str", is => "rw", required => 1;
 has 'is_author', isa => "Bool", is => "rw", required => 1, default => 0;
 has 'author', isa => "User", is => "rw", required => 0;
-
-has 'parent_comment', isa => 'Comment', is => "rw", required => 1;
-has 'post', isa => 'Post', is => "rw", required => 1;
 
 # returns UUID
 sub store_to_db {
