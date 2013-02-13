@@ -1,7 +1,9 @@
 package DB_Backend;
-# use Moose;
+use Moose;
 
 use KiokuDB;
+# use KiokuDB::Backend::MongoDB;
+use KiokuDB::Backend::Files;
 use MooseX::Singleton;
 
 use Search::GIN::Query::Class;
@@ -14,7 +16,7 @@ has kioku => (
 	isa => 'KiokuDB',
 	is => 'ro',
 	default => sub { 
-		KiokuDB->connect("dbi:SQLite:dbname=blog.db", 
+		KiokuDB->connect($ENV{kioku_backend_dsn}, 
 			create => 1, 
 			columns => [
 				username => {
@@ -60,7 +62,6 @@ has kioku => (
 			),
 		);
 	} # end default
-	
 );
 
 # returns User instance

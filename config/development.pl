@@ -1,3 +1,5 @@
+$ENV{kioku_backend_dsn}				= "dbi:SQLite:dbname=blog.db";
+
 $ENV{recaptcha_public_key} 			= '6LeqINoSAAAAAPiP1RACGh5rilIkHTDsxwusQRjn';
 $ENV{recaptcha_private_key} 		= '6LeqINoSAAAAACQA5S9QqMneHkO0E0omPHMP1MVQ';
 $ENV{recaptcha_lang}				= 'en';
