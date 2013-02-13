@@ -10,7 +10,6 @@ use Article;
 use User;
 use Comment;
 
-use FindBin '$Bin';
 use Data::Dumper;
 use Digest::SHA qw(sha1_hex);
 use Email::Sender::Transport::SMTP::TLS;
@@ -20,7 +19,8 @@ use Mojo::Util qw(url_unescape);
 app->secret('aVerySecretThingHere');
 
 my $mode = app->mode || 'production';
-require "$Bin/./config/$mode.pl";
+require "./config/$mode.pl" 
+	unless $ENV{running_within_heroku}; # we don't want local config vars override Heroku config vars 
 
 plugin 'validator';
 plugin 'email' => {
