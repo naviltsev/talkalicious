@@ -16,7 +16,10 @@ has kioku => (
 	isa => 'KiokuDB',
 	is => 'ro',
 	default => sub { 
-		KiokuDB->connect($ENV{kioku_backend_dsn}, 
+		KiokuDB->connect(
+			$ENV{kiokudb_backend_dsn}, 
+			user => $ENV{kiokudb_backend_user},
+			password => $ENV{kiokudb_backend_password},
 			create => 1, 
 			columns => [
 				username => {

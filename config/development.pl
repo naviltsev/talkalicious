@@ -1,4 +1,6 @@
-$ENV{kioku_backend_dsn}				= "dbi:SQLite:dbname=blog.db";
+$ENV{kiokudb_backend_dsn}			= "dbi:SQLite:dbname=blog.db";
+$ENV{kiokudb_backend_user}			= "";
+$ENV{kiokudb_backend_password}		= "";
 
 $ENV{recaptcha_public_key} 			= '6LeqINoSAAAAAPiP1RACGh5rilIkHTDsxwusQRjn';
 $ENV{recaptcha_private_key} 		= '6LeqINoSAAAAACQA5S9QqMneHkO0E0omPHMP1MVQ';
