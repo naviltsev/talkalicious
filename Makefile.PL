@@ -16,7 +16,8 @@ WriteMakefile(
   	'Date::Manip' => '0',
   	'Email::MIME' => '0',
   	'Email::Sender::Transport::SMTP::TLS' => '0',
-  	'Email::Sender::Transport::Sendmail' => '0'
+  	'Email::Sender::Transport::Sendmail' => '0',
+    'DBD::Pg' => '0', # errrr, this is for Heroku
   },
   test      => {TESTS => 't/*.t'}
 );
