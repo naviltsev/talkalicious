@@ -3,5 +3,11 @@
 
 <p class="lead">Account confirmation</p>
 
+% if (my $message = flash 'message') {
+  	<div class="alert alert-success">
+        <%== $message %>
+    </div>
+% }
+
 <p>We've just sent you an email with confirmation link.</p>
 <p>Check your email and click confirmation link in order to activate your account</p>

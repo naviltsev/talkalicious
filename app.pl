@@ -24,7 +24,12 @@ require "config/$mode.pl";
 plugin 'validator';
 plugin 'email' => {
 	from => $ENV{email_from},
-	transport => $ENV{email_transport}
+	transport => "$ENV{email_transport_module}"->new(
+					host => $ENV{email_transport_host},
+					username => $ENV{email_transport_username},
+					password => $ENV{email_transport_password},
+					port => $ENV{email_transport_port}
+				)
 };
 
 plugin 'recaptcha' => {
@@ -93,7 +98,8 @@ any ['GET', 'POST'] => '/signup' => sub {
 
 	return unless $self->req->method eq 'POST';
 
-	$self->recaptcha;
+	$self->recaptcha 
+		unless $ENV{debug_disable_recaptch};
 
 	my $val = $self->create_validator;
 	$val->field([qw/fullname username password1 password2 email/])->each(sub { shift->required(1)->length(1,64) });
@@ -133,22 +139,28 @@ any ['GET', 'POST'] => '/signup' => sub {
 
 	my $username = $user->fullname;
 	my $domain_name = $self->req->url->host || 'localhost';
-	my $link = "http://${domain_name}/confirmation?key=".$user->confirmation_key;
+	my $port = $self->req->url->port;
+	my $link = "http://${domain_name}" . ($port ? ":$port" : '') . "/confirmation?key=".$user->confirmation_key;
 
-	$self->email(
-		header => [
-			To => $self->param('email'),
-			Subject => $ENV{email_subjects_account_confirmation}
-		],
-		data => [
-			template => 'email/account_confirmation',
-			username => $username,
-			link => $link
-		],
-		content_type => 'text/html',
-		charset => 'utf8',
-		format => 'html'
-	);
+	if ($ENV{debug_disable_email_confirmation}) {
+		$self->flash(message => "Now go to <a href='$link'>$link</a> to activate your account");
+	}
+	else {
+		$self->email(
+			header => [
+				To => $self->param('email'),
+				Subject => $ENV{email_subjects_account_confirmation}
+			],
+			data => [
+				template => 'email/account_confirmation',
+				username => $username,
+				link => $link
+			],
+			content_type => 'text/html',
+			charset => 'utf8',
+			format => 'html'
+		);
+	}
 
 	$self->redirect_to($self->url_for('confirmation'));
 };
