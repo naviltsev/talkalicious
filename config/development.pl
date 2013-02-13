@@ -13,5 +13,5 @@ $ENV{email_subjects_account_confirmation} = "mkdb-blog-perl account confirmation
 
 # debug 
 # set to true to ignore some parts of the app
-$ENV{debug_disable_recaptch} = 1;
+$ENV{debug_disable_recaptcha} = 1;
 $ENV{debug_disable_email_confirmation} = 1;

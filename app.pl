@@ -99,7 +99,7 @@ any ['GET', 'POST'] => '/signup' => sub {
 	return unless $self->req->method eq 'POST';
 
 	$self->recaptcha 
-		unless $ENV{debug_disable_recaptch};
+		unless $ENV{debug_disable_recaptcha};
 
 	my $val = $self->create_validator;
 	$val->field([qw/fullname username password1 password2 email/])->each(sub { shift->required(1)->length(1,64) });
