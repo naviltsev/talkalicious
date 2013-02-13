@@ -20,12 +20,12 @@
 	      		</div>
 	    	</div>
 	    	<div class="row">
-	      		<div class="span2">
+<!-- 	      		<div class="span2">
 			        <a href="#" class="thumbnail">
 			            <img src="http://placehold.it/260x180" alt="">
 			        </a>
-				</div>
-		    	<div class="span6">
+				</div> -->
+		    	<div class="span8">
 		        	<p>
 			        	<%== $post->article->excerpt %><br />
 			        </p>

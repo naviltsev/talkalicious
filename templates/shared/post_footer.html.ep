@@ -4,7 +4,7 @@
 			<i class="icon-user"></i> by <a href="#"><%= $post->article->author->username %></a> 
 			| <i class="icon-calendar"></i> <%= $post->article->date %>
 			| <i class="icon-comment"></i> <a href="#"><%= scalar(@{$post->comments}) %> comments</a>
-			| <i class="icon-share"></i> <a href="#">39 Shares</a>
+			<%# | <i class="icon-share"></i> <a href="#">39 Shares</a> %>
 			| <i class="icon-tags"></i> Tags : <a href="#"><span class="label label-info">Snipp</span></a> 
 			<a href="#"><span class="label label-info">Bootstrap</span></a> 
 			<a href="#"><span class="label label-info">UI</span></a> 

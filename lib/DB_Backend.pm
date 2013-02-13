@@ -35,7 +35,7 @@ has kioku => (
 				}
 			],
 			# This gets called against each object being added into database, building gin_index table with entries.
-			# Later on it will be possible to build simple queries with Search::GIN::Quey
+			# Later on it will be possible to build simple queries with Search::GIN::Query
 			extract => Search::GIN::Extract::Callback->new(
 				extract => sub {
 					my ($obj, $extractor, @args) = @_;
