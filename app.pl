@@ -2,6 +2,8 @@
 use Mojolicious::Lite;
 use lib qw(lib vendor/Mojolicious-Plugin-Email/lib);
 
+use 5.010;
+
 use DB_Backend;
 use Post;
 use Article;
@@ -17,22 +19,30 @@ use Mojo::Util qw(url_unescape);
 app->secret('aVerySecretThingHere');
 
 my $mode = app->mode || 'production';
-my $conf = plugin 'config' => { file => "config/$mode.conf" };
+require "config/$mode.pl";
 
 plugin 'validator';
 plugin 'email' => {
-	from => $conf->{email}{from},
-	transport => $conf->{email}{transport}
+	from => $ENV{email_from},
+	transport => $ENV{email_transport}
 };
 
 plugin 'recaptcha' => {
-	public_key => $conf->{recaptcha}{public_key},
-	private_key => $conf->{recaptcha}{private_key},
-	lang => $conf->{recaptcha}{lang}
+	public_key => $ENV{recaptcha_public_key},
+	private_key => $ENV{recaptcha_private_key},
+	lang => $ENV{recaptcha_lang}
 };
 
 helper kioku => sub {
 	return DB_Backend->kioku;
+};
+
+get '/env' => sub {
+	my $self = shift;
+
+	foreach my $key (keys %ENV) {
+		say "\$ENV{$key} = $ENV{$key}";
+	}
 };
 
 get '/' => sub {
@@ -122,12 +132,13 @@ any ['GET', 'POST'] => '/signup' => sub {
 	$user->store_to_db;
 
 	my $username = $user->fullname;
-	my $link = "http://$conf->{domain}/confirmation?key=".$user->confirmation_key;
+	my $domain_name = $self->req->url->host || 'localhost';
+	my $link = "http://${domain_name}/confirmation?key=".$user->confirmation_key;
 
 	$self->email(
 		header => [
 			To => $self->param('email'),
-			Subject => $conf->{email}{subjects}{account_confirmation}
+			Subject => $ENV{email_subjects_account_confirmation}
 		],
 		data => [
 			template => 'email/account_confirmation',
