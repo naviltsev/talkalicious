@@ -2,8 +2,6 @@ package DB_Backend;
 use Moose;
 
 use KiokuDB;
-# use KiokuDB::Backend::MongoDB;
-use KiokuDB::Backend::Files;
 use MooseX::Singleton;
 
 use Search::GIN::Query::Class;
