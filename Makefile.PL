@@ -6,18 +6,18 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
   VERSION   => '0.01',
   PREREQ_PM => {
-  	'Mojolicious' => '3.64',
+  	'Mojolicious' => '3.85',
   	'MojoX::Validator' => '0',
   	'Mojolicious::Plugin::Recaptcha' => '0',
-  	'Mojolicious::Plugin::Mail' => '0',
-  	'KiokuDB' => '0',
-  	'KiokuDB::Backend::DBI' => '0',
-  	'MooseX::Singleton' => '0',
+  	'KiokuDB' => '0.52',
+  	'KiokuDB::Backend::DBI' => '1.22',
+  	'MooseX::Singleton' => '0.29',
   	'Date::Manip' => '0',
   	'Email::MIME' => '0',
-  	'Email::Sender::Transport::SMTP::TLS' => '0',
-  	'Email::Sender::Transport::Sendmail' => '0',
-    'DBD::Pg' => '0', # errrr, this is for Heroku
+    'Email::Sender' => '1.300004',
+    'Email::Sender::Transport::Sendmail' => '0',
+  	'Email::Sender::Transport::SMTP' => '0',
+    'DBD::Pg' => '0', # errrr, this is for Heroku :)
   },
   test      => {TESTS => 't/*.t'}
 );
