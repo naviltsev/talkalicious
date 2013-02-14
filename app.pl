@@ -139,12 +139,11 @@ any ['GET', 'POST'] => '/signup' => sub {
 	$user->store_to_db;
 
 	my $username = $user->fullname;
-	my $domain_name = $self->req->url->host || 'localhost';
-	my $port = $self->req->url->port;
-	my $link = "http://${domain_name}" . ($port ? ":$port" : '') . "/confirmation?key=".$user->confirmation_key;
+	my $base_url = $self->req->url->base || 'http://localhost:3000';
+	my $link = "$base_url/confirmation?key=".$user->confirmation_key;
 
 	if ($ENV{debug_disable_email_confirmation}) {
-		$self->flash(message => "Now go to <a href='$link'>$link</a> to activate your account");
+		$self->flash(message => "DEBUG: Now go to <a href='$link'>$link</a> to activate your account");
 	}
 	else {
 		$self->email(
