@@ -18,7 +18,7 @@ use Mojo::Util qw(url_unescape);
 
 app->secret('aVerySecretThingHere');
 
-my $mode = app->mode || 'production';
+my $mode = app->mode || 'development';
 require "./config/$mode.pl" 
 	unless $ENV{running_within_heroku}; # we don't want local config vars override Heroku config vars 
 
