@@ -1,18 +1,24 @@
+# Admin
+$ENV{admin_username} 				= "admin";
+$ENV{admin_password}				= "admin";
+
+# KiokuDB backend
 $ENV{kiokudb_backend_dsn}			= "dbi:SQLite:dbname=blog.db";
-$ENV{kiokudb_backend_user}			= "";
+$ENV{kiokudb_backend_username}			= "";
 $ENV{kiokudb_backend_password}		= "";
 
+# Recaptch settings
 $ENV{recaptcha_public_key} 			= '6LeqINoSAAAAAPiP1RACGh5rilIkHTDsxwusQRjn';
 $ENV{recaptcha_private_key} 		= '6LeqINoSAAAAACQA5S9QqMneHkO0E0omPHMP1MVQ';
 $ENV{recaptcha_lang}				= 'en';
 
+# Email settings
 $ENV{email_from} 					= '"mkdb-blog-perl" <blog@mkdb-blog-perl.com>';
 $ENV{email_transport_module}		= "Email::Sender::Transport::SMTP::TLS"; # or Email::Sender::Transport::Sendmail, etc
 $ENV{email_transport_host}			= "";
 $ENV{email_transport_username}		= "";
 $ENV{email_transport_password}		= "";
 $ENV{email_transport_port}			= 587;
-
 $ENV{email_subjects_account_confirmation} = "mkdb-blog-perl account confirmation";
 
 # debug 
