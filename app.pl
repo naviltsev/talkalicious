@@ -3,7 +3,7 @@ use Mojolicious::Lite;
 use lib qw(lib vendor/Mojolicious-Plugin-Email/lib);
 
 use 5.010;
-use Plack::Builder;
+# use Plack::Builder;
 
 use DB_Backend;
 use Post;
@@ -351,8 +351,8 @@ any '/settings' => sub {
 } => 'settings';
 
 
-builder {
-	enable "Debug";
+# builder {
+	# enable "Debug";
 	app->start;	
-}
+# }
 
