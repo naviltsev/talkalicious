@@ -6,15 +6,13 @@
 	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	    <meta name="description" content="Blog engine using Perl/Moose/KiokuDB">
 	    <meta name="author" content="Nikolay Aviltsev">
-	    <!-- Le styles -->
 
-	    %#= stylesheet '/components/bootstrap/css/bootstrap.css'
-	    %#= stylesheet '/components/themes/Amelia/bootstrap.min.css'
-	    % if (my $theme = stash 'theme') {
-	    	%= stylesheet "/components/themes/$theme/bootstrap.min.css"
+	    % if (my $preference_theme = stash 'preference_theme') {
+	    	%= stylesheet "/components/themes/$preference_theme/bootstrap.min.css";
 	    % } else {
-	    	%= stylesheet '/components/bootstrap/css/bootstrap.css'
+	    	%= stylesheet "/components/bootstrap/css/bootstrap.css";
     	% }
+
 		%= stylesheet '/components/bootstrap/css/bootstrap-responsive.css'
 		%= stylesheet '/components/bootstrap-wysihtml5/dist/bootstrap-wysihtml5-0.0.2.css'
 		%= stylesheet '/css/style.css'
@@ -43,7 +41,7 @@
 			<div class="navbar-inner">
 				<div class="container">
 					<a class="brand" href="/">
-						KiokuBLOG
+						<%= $preference_blog_name %>
 					</a>
 					<ul class="nav">
 						<% if (session->{logged_in_username}) { %>

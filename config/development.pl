@@ -2,6 +2,10 @@
 $ENV{admin_username} 				= "admin";
 $ENV{admin_password}				= "admin";
 
+# Site-wide settings
+$ENV{preference_blog_name}			= "Talkalicious";
+$ENV{preference_themes}				= "Default Amelia Cerulean Cosmo Cyborg Journal Readable Simplex Slate Spacelab Spruce Superhero United";
+
 # KiokuDB backend
 $ENV{kiokudb_backend_dsn}			= "dbi:SQLite:dbname=blog.db";
 $ENV{kiokudb_backend_username}			= "";

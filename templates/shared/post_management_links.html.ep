@@ -1,10 +1,10 @@
 % my $post_id = kioku->object_to_id($post);
 <% if ($post->article->author->username eq session->{logged_in_username}) { %>
-	<%= link_to "Edit" => '/edit_post/?post_id=' . $post_id, class => 'btn' %>
+	<%= link_to "Edit" => '/edit_post/?post_id=' . $post_id, class => 'btn btn-mini' %>
 	<% if ($post->is_hidden) { %>
-		<%= link_to "Show" => '/post_set_visibility/' . $post_id . '/0', class => 'btn' %>
+		<%= link_to "Show" => '/post_set_visibility/' . $post_id . '/0', class => 'btn btn-mini' %>
 	<% } else { %>
-		<%= link_to "Hide" => '/post_set_visibility/' . $post_id . '/1', class => 'btn' %>
+		<%= link_to "Hide" => '/post_set_visibility/' . $post_id . '/1', class => 'btn btn-mini' %>
 	<% } %>
-	<%= link_to "Delete" => '/delete_post/' . $post_id, class => 'btn btn-danger' %>
+	<%= link_to "Delete" => '/delete_post/' . $post_id, class => 'btn btn-mini btn-danger' %>
 <% } %>
