@@ -3,6 +3,7 @@ use Mojolicious::Lite;
 use lib qw(lib vendor/Mojolicious-Plugin-Email/lib);
 
 use 5.010;
+use Plack::Builder;
 
 use DB_Backend;
 use Post;
@@ -43,6 +44,19 @@ helper kioku => sub {
 	return DB_Backend->kioku;
 };
 
+# Hooks
+hook before_dispatch => sub {
+	my $self = shift;
+	# TODO refactor so that we don't need to get user for each request
+	my $user = DB_Backend->find_user(username => $self->session('logged_in_username'));
+
+	return unless $user;
+
+	$self->stash(preference_theme => $user->get_preference('theme'));
+	$self->stash(preference_blog_name => $ENV{preference_blog_name});
+};
+
+# Routes
 get '/env' => sub {
 	my $self = shift;
 
@@ -313,4 +327,32 @@ get '/post_set_visibility/:post_id/:should_hide' => sub {
 	$self->redirect_to('post_list');
 };
 
-app->start;
+any '/settings' => sub {
+	my $self = shift;
+
+	# Push list of available themes into stash
+	my @themes = split " ", $ENV{preference_themes};
+	$self->stash(preference_themes => \@themes);
+
+	my $user = DB_Backend->find_user(username => $self->session('logged_in_username'));
+	return unless $user;
+
+	$self->stash(current_theme => $user->get_preference('theme'));
+
+	return unless $self->req->method eq 'POST';
+
+	# TODO Validate input
+	for (qw/theme/) {
+		$user->set_preference($_ => $self->param($_));
+	}
+	$self->kioku->new_scope && $self->kioku->deep_update($user);
+
+	$self->redirect_to('/settings');
+} => 'settings';
+
+
+builder {
+	enable "Debug";
+	app->start;	
+}
+

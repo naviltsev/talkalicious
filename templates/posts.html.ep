@@ -13,7 +13,6 @@
 					<% } else { %>
 						<h2><%= $post->article->title %></h2>
 					<% } %>
-					%= include 'shared/post_management_links', post => $post
 				</div>
 			</div>
 
@@ -28,7 +27,10 @@
 			        <p>
 						<%== $post->article->excerpt %><br />
 					</p>
-					<p><a class="btn" href="<%= url_for 'post' %><%= kioku->object_to_id($post) %>">Read more</a></p>
+					<p>
+						<span><a class="btn" href="<%= url_for 'post' %><%= kioku->object_to_id($post) %>">Read more</a></span>
+						<span class="pull-right"><%= include 'shared/post_management_links', post => $post %></span>
+					</p>
 				</div>
 			</div>
 

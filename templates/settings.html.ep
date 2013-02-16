@@ -1,0 +1,38 @@
+% layout 'default';
+% title 'Settings';
+
+<div class="row">
+	<div class="offset1 span10">
+		<div class="row">
+			<h4>Settings</h4>
+		</div>
+
+		<div class="row">
+			%= form_for 'settings' => (method => 'POST', class => 'form-horizontal') => begin
+				<div class="control-group">
+					<label class="control-label" for="theme">Theme</label>
+					<div class="controls">
+
+						% my @theme_list;
+						% foreach my $t(@$preference_themes) {
+							% if ($t eq $current_theme) {
+								% push @theme_list, [$t => $t, selected => 1];
+							% } else {
+								% push @theme_list, $t;
+							% }
+						% }
+
+						%= select_field theme => \@theme_list
+					</div>
+				</div>
+
+				<div class="control-group">
+					<label class="control-label" for="submit"></label>
+					<div class="controls">
+						%= submit_button "Save", class => 'btn btn-primary'
+					</div>
+				</div>
+			% end
+		</div>
+	</div>
+</div>

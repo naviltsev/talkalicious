@@ -2,6 +2,7 @@ package User;
 
 use Moose;
 use DB_Backend;
+
 use Data::Dumper;
 use namespace::autoclean;
 
@@ -15,6 +16,18 @@ has "email", isa => "Str", is => "rw";
 has "is_active", isa => "Bool", is => "rw", default => 0;
 
 has "confirmation_key", isa => "Str", is => "rw";
+
+has 'preferences' => (
+	traits    => ['Hash'],
+	isa => 'HashRef', 
+	is => 'rw', 
+	default => sub { {} },
+	handles => {
+		set_preference 		=> 'set',
+		get_preference		=> 'get',
+		unset_preference	=> 'delete',
+	}
+);
 
 sub store_to_db {
 	my $self = shift;

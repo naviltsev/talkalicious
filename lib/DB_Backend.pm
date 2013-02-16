@@ -16,7 +16,7 @@ has kioku => (
 	default => sub { 
 		KiokuDB->connect(
 			$ENV{kiokudb_backend_dsn}, 
-			user => $ENV{kiokudb_backend_user},
+			user => $ENV{kiokudb_backend_username},
 			password => $ENV{kiokudb_backend_password},
 			create => 1, 
 			columns => [
