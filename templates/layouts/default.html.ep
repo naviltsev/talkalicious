@@ -8,7 +8,13 @@
 	    <meta name="author" content="Nikolay Aviltsev">
 	    <!-- Le styles -->
 
-	    %= stylesheet '/components/bootstrap/css/bootstrap.css'
+	    %#= stylesheet '/components/bootstrap/css/bootstrap.css'
+	    %#= stylesheet '/components/themes/Amelia/bootstrap.min.css'
+	    % if (my $theme = stash 'theme') {
+	    	%= stylesheet "/components/themes/$theme/bootstrap.min.css"
+	    % } else {
+	    	%= stylesheet '/components/bootstrap/css/bootstrap.css'
+    	% }
 		%= stylesheet '/components/bootstrap/css/bootstrap-responsive.css'
 		%= stylesheet '/components/bootstrap-wysihtml5/dist/bootstrap-wysihtml5-0.0.2.css'
 		%= stylesheet '/css/style.css'
@@ -40,16 +46,11 @@
 						KiokuBLOG
 					</a>
 					<ul class="nav">
-						<li>
-							<% if (session->{logged_in_username}) { %>
-								<%= link_to "New post" => 'edit_post' %>
-							<% } %>
-						</li>
-						<li>
-							<% if (session->{logged_in_username}) { %>
-								<%= link_to "My posts" => 'post_list' %>
-							<% } %>
-						</li>
+						<% if (session->{logged_in_username}) { %>
+							<li><%= link_to "New post" => 'edit_post' %></li>
+							<li><%= link_to "My posts" => 'post_list' %></li>
+							<li><%= link_to "Settings" => 'settings' %></li>
+						<% } %>
 						<li class="pull-right">
 							<% if (session->{logged_in_username}) { %>
 								<%= link_to "Logout" => 'logout' %>
