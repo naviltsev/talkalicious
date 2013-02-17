@@ -47,13 +47,17 @@ helper kioku => sub {
 # Hooks
 hook before_dispatch => sub {
 	my $self = shift;
-	# TODO refactor so that we don't need to get user for each request
-	my $user = DB_Backend->find_user(username => $self->session('logged_in_username'));
+	
+	$self->stash(preference_blog_name => $ENV{preference_blog_name});
 
+	return unless $self->session('logged_in_username');
+
+	# TODO refactor searching user so that we don't need to get user for each request
+	my $user = DB_Backend->find_user(username => $self->session('logged_in_username'));
 	return unless $user;
 
 	$self->stash(preference_theme => $user->get_preference('theme'));
-	$self->stash(preference_blog_name => $ENV{preference_blog_name});
+	
 };
 
 # Routes
