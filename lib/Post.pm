@@ -20,6 +20,11 @@ sub store_to_db {
 	return $kioku->store($self);
 }
 
+sub am_i_author {
+    my ($self, $username) = @_;
+    return $self->article->author->username eq $username;
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;

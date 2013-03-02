@@ -73,7 +73,7 @@ get '/' => sub {
   my $self = shift;
 
   my @all_posts = DB_Backend->find_all_posts;
-  $self->render('index', posts => \@all_posts);
+  $self->render('posts', posts => \@all_posts);
 };
 
 any ['GET', 'POST'] => '/login' => sub {
