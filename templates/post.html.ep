@@ -11,7 +11,7 @@
 <div class="row">
 	<div class="offset2 span8">
 
-		% if ($post->comments) {
+		% if ($post->comments && !$disable_comments) {
 			<a href="#comments">down to comments</a>
 		% }
 
@@ -21,10 +21,13 @@
 		%= include 'shared/post_footer', post => $post
 		<hr />
 
-		%= include 'shared/comments', post => $post
-		<hr />
+		% unless ($disable_comments) {
+			%= include 'shared/comments', post => $post
+			<hr />
+		% }
+		
 
-		% if ($self->session('logged_in_username')) {
+		% if ($self->session('logged_in_username') && !$disable_comments) {
 			<div class="row">
 				<div class="span4 well pull-left">
 				    <form accept-charset="utf-8" action="/add_comment" method="post">

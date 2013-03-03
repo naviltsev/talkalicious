@@ -48,7 +48,9 @@ helper kioku => sub {
 hook before_dispatch => sub {
 	my $self = shift;
 	
+	# TODO: instead passing every single setting, pass entire $config object into the view?
 	$self->stash(preference_blog_name => $ENV{preference_blog_name});
+	$self->stash(disable_comments => $ENV{disable_comments});
 
 	return unless $self->session('logged_in_username');
 
@@ -61,14 +63,6 @@ hook before_dispatch => sub {
 };
 
 # Routes
-get '/env' => sub {
-	my $self = shift;
-
-	foreach my $key (keys %ENV) {
-		say "\$ENV{$key} = $ENV{$key}";
-	}
-};
-
 get '/' => sub {
   my $self = shift;
 
@@ -300,10 +294,10 @@ get '/delete_post/:post_id' => sub {
 	my $self = shift;
 	my $post_id = $self->param('post_id');
 
-	# TODO: Check if this post is mine - random user can not just delete any post
-
 	my $s = $self->kioku->new_scope;
 	my $post = $self->kioku->lookup($post_id);
+
+	return unless $post->am_i_author($self->session('logged_in_username'));
 
 	if ($post) {
 		$self->kioku->delete($post);
