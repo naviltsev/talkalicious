@@ -7,7 +7,7 @@ use DB_Backend;
 use Digest::SHA qw(sha1_hex);
 
 has "article", isa => "Article", is => "rw", required => 1;
-has "is_hidden", isa => "Bool", is => "rw", required => 1, default => '0';
+has "is_hidden", isa => "Bool", is => "rw", required => 1, default => '1';
 
 has "comments", isa => "ArrayRef[Comment]", is => "rw", required => 0, default => sub { [] };
 
