@@ -28,7 +28,8 @@
 
 		%= javascript '/components/jquery/jquery.min.js' 
 		%= javascript 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js'
-		%#= javascript '/components/bootstrap/...'
+
+		%= javascript '/components/bootstrap/js/bootstrap-dropdown.js'
 
 		%= javascript '/components/wysihtml5/parser_rules/advanced.js'
 		%= javascript '/components/wysihtml5/dist/wysihtml5-0.3.0.js'
@@ -45,18 +46,30 @@
 					</a>
 					<ul class="nav">
 						<% if (session->{logged_in_username}) { %>
-							<li><%= link_to "New post" => 'edit_post' %></li>
+							<li><a href="/"><i class="icon-home"></i> Home</a></li>
+							<!-- <li><%= link_to "New post" => 'edit_post' %></li>
 							<li><%= link_to "My posts" => 'post_list' %></li>
-							<li><%= link_to "Settings" => 'settings' %></li>
+							<li><%= link_to "Settings" => 'settings' %></li> -->
 						<% } %>
-						<li class="pull-right">
-							<% if (session->{logged_in_username}) { %>
-								<%= link_to "Logout" => 'logout' %>
-							<% } else { %>
-								<%= link_to "Sign in" => 'login' %>
-							<% } %>
-						</li>
 					</ul>
+					<div class="pull-right">
+						<ul class="nav pull-right">
+							% if (session->{logged_in_username}) {
+			                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Welcome, <%= session->{logged_in_username} %> <b class="caret"></b></a>
+			                        <ul class="dropdown-menu">
+				                        <li><a href="<%= url_for 'post_list' %>"><i class="icon-book"></i> My posts</a></li>
+			                            <li><a href="<%= url_for 'settings' %>"><i class="icon-cog"></i> Settings</a></li>
+			                            <li class="divider"></li>
+			                            <li><a href="<%= url_for 'logout' %>"><i class="icon-off"></i> Logout</a></li>
+			                        </ul>
+			                    </li>
+			                % } else {
+								<li>
+									<a href="<%= url_for 'login' %>"><i class="icon-pencil"></i> Sign in</a></li>
+								</li>
+							% }
+						</ul>
+					</div>
 				</div>
 			</div>
 		</div>

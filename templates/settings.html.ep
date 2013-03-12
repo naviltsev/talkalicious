@@ -1,38 +1,44 @@
 % layout 'default';
 % title 'Settings';
 
-<div class="row">
-	<div class="offset1 span10">
-		<div class="row">
-			<h4>Settings</h4>
-		</div>
+	<div class="row">
+		<div class="offset2 span8">
 
-		<div class="row">
 			%= form_for 'settings' => (method => 'POST', class => 'form-horizontal') => begin
-				<div class="control-group">
-					<label class="control-label" for="theme">Theme</label>
-					<div class="controls">
-
-						% my @theme_list;
-						% foreach my $t(@$preference_themes) {
-							% if ($t eq $current_theme) {
-								% push @theme_list, [$t => $t, selected => 1];
-							% } else {
-								% push @theme_list, $t;
-							% }
+				<fieldset>
+					<legend>Theme</legend>
+					% my @theme_list;
+					% foreach my $t(@$preference_themes) {
+						% if ($t eq $current_theme) {
+							% push @theme_list, [$t => $t, selected => 1];
+						% } else {
+							% push @theme_list, $t;
 						% }
+					% }
 
-						%= select_field theme => \@theme_list
-					</div>
-				</div>
+					%= select_field theme => \@theme_list
+					%= submit_button "Save", class => 'btn btn-primary'
+				</fieldset>
+			% end
 
-				<div class="control-group">
-					<label class="control-label" for="submit"></label>
-					<div class="controls">
-						%= submit_button "Save", class => 'btn btn-primary'
-					</div>
-				</div>
+
+			%= form_for 'settings' => (method => 'POST') => begin
+				<fieldset>
+					<legend>Profile settings (<%= session->{logged_in_username} %>)</legend>
+
+					<label for="fullname">Full name</label>
+					%= text_field 'fullname', $user->fullname
+
+					<label for="email">Email</label>
+					%= text_field 'email', $user->email
+
+					<br />
+					<%= link_to "Change password" => 'change_password' %><br />
+					
+					<br />
+					%= submit_button "Save", class => 'btn btn-primary'
+				</fieldset>
 			% end
 		</div>
 	</div>
-</div>
+

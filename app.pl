@@ -20,6 +20,7 @@ use Mojo::Util qw(url_unescape);
 app->secret('aVerySecretThingHere');
 
 my $mode = app->mode || 'development';
+say "[debug] Running in $mode";
 require "./config/$mode.pl" 
 	unless $ENV{running_within_heroku}; # we don't want local config vars override Heroku config vars 
 
@@ -336,15 +337,22 @@ any '/settings' => sub {
 	return unless $user;
 
 	$self->stash(current_theme => $user->get_preference('theme'));
+	$self->stash(user => $user);
 
 	return unless $self->req->method eq 'POST';
 
 	# TODO Validate input
 	for (qw/theme/) {
-		$user->set_preference($_ => $self->param($_));
+		$user->set_preference($_ => $self->param($_)) if $self->param($_);
 	}
-	$self->kioku->new_scope && $self->kioku->deep_update($user);
 
+	# set new fullname
+	$user->fullname($self->param('fullname')) if $self->param('fullname');
+
+	# set new email
+	$user->email($self->param('email')) if $self->param('email');
+
+	$self->kioku->new_scope && $self->kioku->deep_update($user);
 	$self->redirect_to('/settings');
 } => 'settings';
 
