@@ -4,6 +4,7 @@
 % use Date::Manip;
 % my $username = $self->session('logged_in_username');
 
+<!-- # FIXME here is a bug, if there is a post, but it's hidden, user see empty screen without placeholder text. -->
 % unless (scalar @$posts) {
     <div class="row">
         <div class="span12">
