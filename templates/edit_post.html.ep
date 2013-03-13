@@ -14,11 +14,16 @@
 			<div class="control-group <% if (validator_error('title')) { %> error <% } %>">
 				%= text_field 'title', $post_title, id => 'post-title', class => 'span8', placeholder => 'Title'
 			</div>
+
 			<div class="control-group <% if (validator_error('excerpt')) { %> error <% } %>">
-				%= text_area 'excerpt', $post_excerpt, id => 'wysihtml5-excerpt', class => 'span8', placeholder => 'Excerpt'
+				<label for="excerpt">Excerpt</label>
+				%= text_area 'excerpt', $post_excerpt, class => 'span8 ckeditor', placeholder => 'Excerpt'
 			</div>
+
+			<br />
 			<div class="control-group <% if (validator_error('body')) { %> error <% } %>">
-				%= text_area 'body', $post_body, id => 'wysihtml5-body', class => 'span8', placeholder => 'Body'
+				<label for="body">Post body</label>
+				%= text_area 'body', $post_body, class => 'span8 ckeditor', placeholder => 'Body'
 			</div>
 
 			%= hidden_field 'post_id', $post_id
@@ -27,7 +32,7 @@
 	</div>
 </div>
 
-%= javascript begin
+%#= javascript begin
 	$('#wysihtml5-body').wysihtml5({
 		"stylesheets": ["/components/bootstrap-wysihtml5/lib/css/wysiwyg-color.css"],
 	});
