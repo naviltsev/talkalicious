@@ -67,7 +67,7 @@ hook before_dispatch => sub {
 get '/' => sub {
   my $self = shift;
 
-  my @all_posts = DB_Backend->find_all_posts;
+  my @all_posts = DB_Backend->find_posts(is_hidden => 0);
   $self->render('posts', posts => \@all_posts);
 };
 

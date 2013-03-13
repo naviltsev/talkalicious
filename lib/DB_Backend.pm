@@ -35,6 +35,10 @@ has kioku => (
 				confirmation_key => {
 					data_type => 'varchar',
 					is_nullable => 1,
+				},
+				is_hidden => {
+					data_type => 'varchar',
+					is_nullable => 1,
 				}
 			],
 			# This gets called against each object being added into database, building gin_index table with entries.
@@ -86,14 +90,18 @@ sub find_user {
 }
 
 # returns @posts array
-sub find_all_posts {
-	my $self = shift;
+sub find_posts {
+	my ($self, %condition) = @_;
+
+	unless (grep { defined($condition{$_}) } qw/is_hidden/) {
+		warn qq/Can only find by 'is_hidden'/;
+		return;
+	}
 
 	my $kioku = $self->kioku;
 	my $s = $kioku->new_scope;
 
-	my $query = Search::GIN::Query::Class->new(class => 'Post');
-	my $stream = $kioku->search($query);
+	my $stream = $kioku->search(\%condition);
 
 	return $stream->all;
 
