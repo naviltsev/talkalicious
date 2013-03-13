@@ -8,10 +8,9 @@
     <div class="row">
         <div class="span12">
             <p>
-                <br />Welcome to <%= $preference_blog_name %>, a tool to make your own simple and attractive-looking blog website.
-                <br /><br />Currently there are no posts found.
-                <br /><br />You can click <a href="<%= url_for 'edit_post' %>">New Post</a> to start writing a post.
-                <br />Click <a href="<%= url_for 'settings' %>">Settings</a> to change your user settings.
+                <br />Welcome to <%= $preference_blog_name %>
+                <br /><br />Currently there are no posts.
+                <br /><br />If you are an author, click <a href="<%= url_for 'edit_post' %>">New Post</a> to start writing a piece of art.
             </p>            
         </div>
     </div>
