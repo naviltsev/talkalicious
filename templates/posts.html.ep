@@ -2,7 +2,7 @@
 % title 'Posts';
 
 % use Date::Manip;
-% my $username = $self->session('logged_in_username');
+% my $user_id = $self->session('logged_in_userid');
 
 % unless (scalar @$posts) {
     <div class="row">
@@ -17,16 +17,16 @@
 % }
 
 % foreach my $post(@$posts) {
-    % next if ($post->is_hidden && !$post->am_i_author($username));
+    % next if (!$post->published && !($post->author_id == $user_id));
 
     <div class="row">
         <div class="offset2 span8">
             <div class="row">
                 <div class="span8">
-                    <% if ($post->is_hidden && $post->am_i_author($username)) { %>
-                        <h2 class="muted"><%= $post->article->title %></h2>
+                    <% if (!$post->published && ($post->author_id == $user_id)) { %>
+                        <h2 class="muted"><%= $post->title %></h2>
                     <% } else { %>
-                        <h2><%= $post->article->title %></h2>
+                        <h2><%= $post->title %></h2>
                     <% } %>
                 </div>
             </div>
@@ -34,11 +34,11 @@
             <div class="row">
                 <div class="span8">
                     <p>
-                        <%== $post->article->excerpt %><br />
+                        <%== $post->excerpt %><br />
                     </p>
                     <p>
-                        <span><a class="btn" href="<%= url_for 'post' %><%= kioku->object_to_id($post) %>">Read more</a></span>
-                        <% if ($post->am_i_author($username)) { %>
+                        <span><a class="btn" href="<%= url_for 'post' %><%= $post->id %>">Read more</a></span>
+                        <% if ($post->author_id == $user_id) { %>
                             <span class="pull-right"><%= include 'shared/post_management_links', post => $post %></span>
                         <% } %>
                     </p>

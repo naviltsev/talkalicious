@@ -1,17 +1,17 @@
 % layout 'default';
 
 % my $post = stash 'post';
-% my $post_title = $post ? $post->article->title : '';
-% my $post_body = $post ? $post->article->body : '';
-% my $post_excerpt = $post ? $post->article->excerpt : '';
-% my $post_id = $post ? kioku->object_to_id($post) : '';
+% my $post_title = $post ? $post->title : '';
+% my $post_body = $post ? $post->body : '';
+% my $post_excerpt = $post ? $post->excerpt : '';
+% my $post_id = $post ? $post->id : '';
 
 % title $post_title;
 
 <div class="row">
 	<div class="offset2 span8">
 
-		% if ($post->comments && !$disable_comments) {
+		% if ($post->comments->all && !$disable_comments) {
 			<a href="#comments">down to comments</a>
 		% }
 
@@ -21,13 +21,13 @@
 		%= include 'shared/post_footer', post => $post
 		<hr />
 
-		% unless ($disable_comments) {
+		% if ($post->comments->all && !$disable_comments) {
 			%= include 'shared/comments', post => $post
 			<hr />
 		% }
 		
 
-		% if ($self->session('logged_in_username') && !$disable_comments) {
+		% if ($self->session('logged_in_userid') && !$disable_comments) {
 			<div class="row">
 				<div class="span4 well pull-left">
 				    <form accept-charset="utf-8" action="/add_comment" method="post">

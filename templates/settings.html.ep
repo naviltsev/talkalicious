@@ -24,7 +24,7 @@
 
 			%= form_for 'settings' => (method => 'POST') => begin
 				<fieldset>
-					<legend>Profile settings (<%= session->{logged_in_username} %>)</legend>
+					<legend>Profile settings (<%= session->{username} %>)</legend>
 
 					<label for="fullname">Full name</label>
 					%= text_field 'fullname', $user->fullname
@@ -40,7 +40,7 @@
 				</fieldset>
 			% end
 
-			% if ($self->app->mode ne 'production') {
+			% if ($self->app->mode ne 'production' && $ENV{preference_blog_admin} eq session('username')) {
 				<legend>Environment</legend>
 				<table class="table table-bordered table-hover table-condensed">
 					<thead>

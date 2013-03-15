@@ -2,7 +2,7 @@
 	% my $comment = shift;
 	<p>
 		<i class="icon-user"></i> commented by <a href="#"><%= $comment->author->username %></a>
-		| <i class="icon-calendar"></i> <%= $post->article->date %>
+		| <i class="icon-calendar"></i> <%= $comment->added_on %>
 		| <i class="icon-comment"></i> <a href="#">Comment</a>
 	</p>
 % end
@@ -10,9 +10,9 @@
 <a name="comments"></a>
 <h4>Comments</h2></a>
 
-% foreach my $comment(@{$post->comments}) {
+% foreach my $comment($post->comments->all) {
 	<div class="well">
-		<a name="<%= kioku->object_to_id($comment) %>"></a>
+		<a name="comment-<%= $comment->id %>"></a>
 		%= $comment_header->($comment)
 		<p>
 			%= $comment->body

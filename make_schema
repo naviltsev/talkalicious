@@ -1,0 +1,2 @@
+#!/bin/sh
+dbicdump -o dump_directory=./lib -o components='["InflateColumn::DateTime"]' -o generate_pod=0 Talkalicious::Schema 'dbi:mysql:dbname=talkalicious' root ''

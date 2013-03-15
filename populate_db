@@ -1,0 +1,11 @@
+#!/usr/bin/perl -w
+
+use strict;
+use lib "./lib";
+
+use Talkalicious::Schema;
+
+my $schema = Talkalicious::Schema->connect("dbi:mysql:talkalicious_2", "root", "");
+$schema->deploy();
+
+

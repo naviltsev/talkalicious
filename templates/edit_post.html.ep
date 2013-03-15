@@ -2,10 +2,10 @@
 % title 'Create/edit post';
 
 % my $post = stash 'post';
-% my $post_title = $post ? $post->article->title : '';
-% my $post_body = $post ? $post->article->body : '';
-% my $post_excerpt = $post ? $post->article->excerpt : '';
-% my $post_id = $post ? kioku->object_to_id($post) : '';
+% my $post_title = $post ? $post->title : '';
+% my $post_body = $post ? $post->body : '';
+% my $post_excerpt = $post ? $post->excerpt : '';
+% my $post_id = $post ? $post->id : '';
 
 <div class="row">
 	<div class="offset2 span8">
@@ -31,9 +31,3 @@
 		% end
 	</div>
 </div>
-
-%#= javascript begin
-	$('#wysihtml5-body').wysihtml5({
-		"stylesheets": ["/components/bootstrap-wysihtml5/lib/css/wysiwyg-color.css"],
-	});
-% end

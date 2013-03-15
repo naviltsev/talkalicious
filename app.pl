@@ -5,15 +5,13 @@ use lib qw(lib vendor/Mojolicious-Plugin-Email/lib);
 use 5.010;
 # use Plack::Builder;
 
-use DB_Backend;
-use Post;
-use Article;
-use User;
-use Comment;
+use Talkalicious::Schema;
 
+use DDP;
 use Data::Dumper;
 use Digest::SHA qw(sha1_hex);
 use Email::Sender::Transport::SMTP::TLS;
+use DateTime;
 
 use Mojo::Util qw(url_unescape);
 
@@ -41,9 +39,12 @@ plugin 'recaptcha' => {
 	lang => $ENV{recaptcha_lang}
 };
 
-helper kioku => sub {
-	return DB_Backend->kioku;
+helper schema => sub {
+	return Talkalicious::Schema->connect('dbi:mysql:dbname=talkalicious', 'root', '', 
+		{ AutoCommit => 1, RaiseError => 1, mysql_enable_utf8 => 1}
+	);
 };
+
 
 # Hooks
 hook before_dispatch => sub {
@@ -53,13 +54,14 @@ hook before_dispatch => sub {
 	$self->stash(preference_blog_name => $ENV{preference_blog_name});
 	$self->stash(disable_comments => $ENV{disable_comments});
 
-	return unless $self->session('logged_in_username');
+	return unless $self->session('username');
 
-	# TODO refactor searching user so that we don't need to get user for each request
-	my $user = DB_Backend->find_user(username => $self->session('logged_in_username'));
+	# TODO: refactor searching user so that we don't need to get user for each request
+	my $user = $self->schema->resultset('User')->find($self->session('logged_in_userid'));
 	return unless $user;
 
-	$self->stash(preference_theme => $user->get_preference('theme'));
+	my $theme_preference = $user->preference_for_name('theme');
+	$self->stash(preference_theme => $theme_preference->value);
 	
 };
 
@@ -67,7 +69,7 @@ hook before_dispatch => sub {
 get '/' => sub {
   my $self = shift;
 
-  my @all_posts = DB_Backend->find_posts(is_hidden => 0);
+  my @all_posts = $self->schema->resultset("Post")->search->all;
   $self->render('posts', posts => \@all_posts);
 };
 
@@ -75,12 +77,13 @@ any ['GET', 'POST'] => '/login' => sub {
 	my $self = shift;
 
 	if ($self->req->method eq 'POST') {	
-		my $username = $self->param('login');
-		my $user = DB_Backend->find_user(username => $username, is_active => 1);
+		my $user = $self->schema->resultset('User')->find({username => $self->param('login'), active => 1});
 
-		if ($user && $user->is_password_correct($self->param('password'))) {
-			$self->session(logged_in_username => $username);
-			$self->redirect_to($self->url_for('post_list'));
+		if ($user && $user->password eq sha1_hex($self->param('password'))) {
+			$self->session(logged_in_userid => $user->id);
+			$self->session(username => $user->username);
+			# $self->redirect_to($self->url_for('post_list'));
+			$self->redirect_to('/');
 		} else {
 			$self->stash(error => 'User does not exist');
 		}
@@ -95,12 +98,11 @@ get '/confirmation' => sub {
 
 	return unless $confirmation_key;
 
-	my $user = DB_Backend->find_user(confirmation_key => $confirmation_key);
+	my $user = $self->schema->resultset('User')->find({confirmation_key => $confirmation_key});
 	if ($user) {
 		$self->flash(flash => 'Thanks for registering with us. Your account is now active and you can sign in.');
-
-		$self->kioku->new_scope && $user->is_active(1) && $self->kioku->deep_update($user);
-		
+		$user->active(1);
+		$user->update;		
 		$self->redirect_to('login');
 	} else {
 		$self->redirect_to('/');
@@ -125,12 +127,12 @@ any ['GET', 'POST'] => '/signup' => sub {
 		return;
 	}
 
-	if (DB_Backend->find_user(username => $self->param('username'))) {
+	if ($self->schema->resultset('User')->find({username => $self->param('username')})) {
 		$self->stash(error => 'This username is taken, please choose another one');
 		return;	
 	}
 	
-	if (DB_Backend->find_user(email => $self->param('email'))) {
+	if ($self->schema->resultset('User')->find({email => $self->param('email')})) {
 		$self->stash(error => 'This email address is taken, please choose another one');
 		return;	
 	}
@@ -140,16 +142,16 @@ any ['GET', 'POST'] => '/signup' => sub {
 		return;	
 	}
 
-	my $user = User->new(
+
+	my $user = $self->schema->resultset('User')->create({
 		username => $self->param('username'), 
 		password => sha1_hex($self->param('password1')),
 		email => $self->param('email'),
 		fullname => $self->param('fullname'),
-		is_active => 0,
-		confirmation_key => sha1_hex(localtime . rand())
-	);
-
-	$user->store_to_db;
+		active => 0,
+		confirmation_key => sha1_hex(localtime . rand()),
+		registered_on => DateTime->now,
+	});
 
 	my $username = $user->fullname;
 	my $base_url = $self->req->url->base || 'http://localhost:3000';
@@ -182,15 +184,16 @@ any ['GET', 'POST'] => '/signup' => sub {
 get '/logout' => sub {
 	my $self = shift;
 
-	$self->session(logged_in_username => undef);
+	$self->session(logged_in_userid => undef);
+	$self->session(username => undef);
+
 	$self->redirect_to('/');
 };
 
 get '/post/:post_id' => sub {
 	my $self = shift;
 
-	my $s = $self->kioku->new_scope;
-	my $post = $self->kioku->lookup($self->param('post_id'));
+	my $post = $self->schema->resultset('Post')->find($self->param('post_id'));
 	$self->stash(post => $post);
 
 	return $self->render(text => '404')
@@ -203,7 +206,7 @@ get '/post/:post_id' => sub {
 #
 under sub {
 	my $self = shift;
-	if ($self->session('logged_in_username')) {
+	if ($self->session('logged_in_userid')) {
 		return 1;
 	}
 	
@@ -213,26 +216,24 @@ under sub {
 post '/add_comment' => sub {
 	my $self = shift;
 
-	my $s = $self->kioku->new_scope;
-	my $post = $self->kioku->lookup($self->param('post_id'));
+	my $post = $self->schema->resultset('Post')->find($self->param('post_id'));
 
-	my $comment = Comment->new({
+	my $comment = $self->schema->resultset('Comment')->create({
 		body => $self->param('comment'),
-		is_author => $post->article->author->username eq $self->session('logged_in_username'),
-		author => DB_Backend->find_user(username => $self->session('logged_in_username'))
-		# parent_comment => undef
+		added_on => DateTime->now,
+		post_id => $post->id,
+		author_id => $self->session('logged_in_userid'),
+		# parent_comment_id => undef
 	});
 
-	push @{$post->comments}, $comment;
-
-	$post->store_to_db;
 	$self->redirect_to(sprintf("post/%s", $self->param('post_id')));
 };
 
 get '/posts' => sub {
 	my $self = shift;
 
-	my @posts = DB_Backend->find_posts_by_author($self->session('logged_in_username'));;
+	my @posts = $self->schema->resultset('Post')->search({"me.author_id" => $self->session('logged_in_userid')} , {prefetch => ['author', 'comments']})->all;
+	$self->app->log->debug($self->dumper(\@posts));
 	$self->render('posts', posts => \@posts);
 } => 'post_list';
 
@@ -242,8 +243,7 @@ get '/edit_post' => sub {
 	my $post_id = $self->param('post_id');
 
 	if ($post_id) {
-		my $s = $self->kioku->new_scope;
-		my $post = $self->kioku->lookup($post_id);
+		my $post = $self->schema->resultset('Post')->find($post_id);
 
 		$self->stash(post => $post);
 
@@ -263,29 +263,30 @@ post '/edit_post' => sub {
 	return unless $self->validate($val);
 
 	if ($post_id) { # edit post
-		my $s = $self->kioku->new_scope;
-		my $post = $self->kioku->lookup($post_id);
+		my $post = $self->schema->resultset('Post')->find($post_id);
 
 		return $self->render(text => '404')
 			unless $post;
 
-		$post->article->title($self->param('title'));
-		$post->article->excerpt($self->param('excerpt'));
-		$post->article->body($self->param('body'));
-		$self->kioku->deep_update($post);
+		$post->title($self->param('title'));
+		$post->excerpt($self->param('excerpt'));
+		$post->body($self->param('body'));
+		$post->modified_on(DateTime->now);
+
+		$post->update;
 	} else { # new post
 		my $title = $self->param('title');
 		my $body = $self->param('body');
 		my $excerpt = $self->param('excerpt');
 
-		my $article = Article->new(
-			title => $title, 
-			body => $body, 
-			excerpt => $excerpt,
-			author => DB_Backend->find_user(username => $self->session('logged_in_username'))
-		);
-		my $post = Post->new(article => $article);
-		$post->store_to_db;
+		my $post = $self->schema->resultset('Post')->create({
+			title => $self->param('title'),
+			excerpt => $self->param('excerpt'),
+			body => $self->param('body'),
+			added_on => DateTime->now,
+			author_id => $self->session('logged_in_userid'),
+			published => 0
+		});
 	}
 
 	$self->redirect_to($self->url_for('post_list'));
@@ -295,14 +296,13 @@ get '/delete_post/:post_id' => sub {
 	my $self = shift;
 	my $post_id = $self->param('post_id');
 
-	my $s = $self->kioku->new_scope;
-	my $post = $self->kioku->lookup($post_id);
+	my $post = $self->schema->resultset('Post')->find($post_id);
 
-	return unless $post->am_i_author($self->session('logged_in_username'));
+	# return unless $post->am_i_author($self->session('logged_in_username'));
+	return 
+		unless ($post->author_id == $self->session('logged_in_userid'));
 
-	if ($post) {
-		$self->kioku->delete($post);
-	}
+	$post->delete if $post;
 
 	return $self->redirect_to('post_list');
 };
@@ -310,17 +310,15 @@ get '/delete_post/:post_id' => sub {
 get '/post_set_visibility/:post_id/:should_hide' => sub {
 	my $self = shift;
 	my $post_id = $self->param('post_id');
-	my $should_hide = $self->param('should_hide');
+	my $publish = $self->param('should_hide');
 
 	return $self->render(text => '404')
-		unless ($should_hide eq '0' || $should_hide eq '1');
+		unless ($publish eq '0' || $publish eq '1');
 
-	my $s = $self->kioku->new_scope;
-
-	my $post = $self->kioku->lookup($post_id);
+	my $post = $self->schema->resultset('Post')->find($post_id);
 	if ($post) {
-		$post->is_hidden($should_hide);
-		$self->kioku->store($post);
+		$post->published($publish);
+		$post->update;
 	}
 
 	$self->redirect_to('post_list');
@@ -333,26 +331,27 @@ any '/settings' => sub {
 	my @themes = split " ", $ENV{preference_themes};
 	$self->stash(preference_themes => \@themes);
 
-	my $user = DB_Backend->find_user(username => $self->session('logged_in_username'));
+	my $user = $self->schema->resultset('User')->find($self->session('logged_in_userid'));
 	return unless $user;
 
-	$self->stash(current_theme => $user->get_preference('theme'));
+	# Themes
+	my $theme_preference = $user->preference_for_name('theme');
+	$self->stash(current_theme => $theme_preference->value);
 	$self->stash(user => $user);
 
 	return unless $self->req->method eq 'POST';
 
-	# TODO Validate input
+	# TODO: Validate input
 	for (qw/theme/) {
-		$user->set_preference($_ => $self->param($_)) if $self->param($_);
+		# $user->set_preference($_ => $self->param($_)) if $self->param($_);
+		$theme_preference->value($self->param($_));
+		$theme_preference->update;
 	}
 
-	# set new fullname
 	$user->fullname($self->param('fullname')) if $self->param('fullname');
-
-	# set new email
 	$user->email($self->param('email')) if $self->param('email');
+	$user->update;
 
-	$self->kioku->new_scope && $self->kioku->deep_update($user);
 	$self->redirect_to('/settings');
 } => 'settings';
 
