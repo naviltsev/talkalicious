@@ -60,9 +60,8 @@ hook before_dispatch => sub {
 	my $user = $self->schema->resultset('User')->find($self->session('logged_in_userid'));
 	return unless $user;
 
-	my $theme_preference = $user->preference_for_name('theme');
+	my $theme_preference = $user->preference_value_by_name('theme');
 	$self->stash(preference_theme => $theme_preference->value);
-	
 };
 
 # Routes
@@ -139,7 +138,7 @@ any ['GET', 'POST'] => '/signup' => sub {
 	
 	if ($self->stash('recaptcha_error')) {
 		$self->stash(error => 'reCAPTCHA error, please try again');
-		return;	
+		return;
 	}
 
 
@@ -150,8 +149,13 @@ any ['GET', 'POST'] => '/signup' => sub {
 		fullname => $self->param('fullname'),
 		active => 0,
 		confirmation_key => sha1_hex(localtime . rand()),
-		registered_on => DateTime->now,
+		registered_on => DateTime->now
 	});
+
+
+
+	my $preferences_available = $self->schema->resultset('Preference');
+	$user->populate_empty_preferences($preferences_available);
 
 	my $username = $user->fullname;
 	my $base_url = $self->req->url->base || 'http://localhost:3000';
@@ -298,9 +302,7 @@ get '/delete_post/:post_id' => sub {
 
 	my $post = $self->schema->resultset('Post')->find($post_id);
 
-	# return unless $post->am_i_author($self->session('logged_in_username'));
-	return 
-		unless ($post->author_id == $self->session('logged_in_userid'));
+	return unless $post->am_i_author($self->session('logged_in_username'));
 
 	$post->delete if $post;
 
@@ -335,7 +337,7 @@ any '/settings' => sub {
 	return unless $user;
 
 	# Themes
-	my $theme_preference = $user->preference_for_name('theme');
+	my $theme_preference = $user->preference_value_by_name('theme');
 	$self->stash(current_theme => $theme_preference->value);
 	$self->stash(user => $user);
 

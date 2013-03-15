@@ -62,10 +62,22 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07035 @ 2013-03-15 13:06:17
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:GUE6y01V8fQhqys3kfsrYA
 
-sub preference_for_name {
+sub preference_value_by_name {
   my ($self, $pref_name) = @_;
-  return $self->user_preferences->search({preference_name => $pref_name}, {prefetch => 'preference'})->first;
+
+  my $preference = $self->user_preferences->search({preference_name => $pref_name}, {prefetch => 'preference'})->first;
+  return $preference;
 }
 
+sub populate_empty_preferences {
+  my ($self, $prefs) = @_;
+
+  while (my $p = $prefs->next) {
+    $self->user_preferences->create({
+      preference => $p,
+      value => '',
+    });
+  }
+}
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 1;
