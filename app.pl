@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+
 use Mojolicious::Lite;
 use lib qw(lib vendor/Mojolicious-Plugin-Email/lib);
 
@@ -68,7 +69,7 @@ hook before_dispatch => sub {
 get '/' => sub {
   my $self = shift;
 
-  my @all_posts = $self->schema->resultset("Post")->search->all;
+  my @all_posts = $self->schema->resultset("Post")->all_published_posts;
   $self->render('posts', posts => \@all_posts);
 };
 
@@ -236,8 +237,7 @@ post '/add_comment' => sub {
 get '/posts' => sub {
 	my $self = shift;
 
-	my @posts = $self->schema->resultset('Post')->search({"me.author_id" => $self->session('logged_in_userid')} , {prefetch => ['author', 'comments']})->all;
-	$self->app->log->debug($self->dumper(\@posts));
+	my @posts = $self->schema->resultset('Post')->posts_by_author(author_id => $self->session('logged_in_userid'));
 	$self->render('posts', posts => \@posts);
 } => 'post_list';
 
@@ -323,7 +323,7 @@ get '/post_set_visibility/:post_id/:should_hide' => sub {
 		$post->update;
 	}
 
-	$self->redirect_to('post_list');
+	$self->redirect_to("/edit_post?post_id=$post_id");
 };
 
 any '/settings' => sub {

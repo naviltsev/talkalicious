@@ -4,7 +4,7 @@
 			<i class="icon-user"></i> by <a href="#"><%= $post->author->username %></a> 
 			| <i class="icon-calendar"></i> <%= $post->added_on %>
 			% unless (stash 'disable_comments') {
-				| <i class="icon-comment"></i> <a href="#"><%= $post->comments->all %> comments</a>
+				| <i class="icon-comment"></i> <a href="<%= url_for 'post' %><%= $post->id %>#comments"><%= $post->comments->all %> comments</a>
 			% }
 			<%# | <i class="icon-share"></i> <a href="#">39 Shares</a> %>
 			| <i class="icon-tags"></i> Tags : <a href="#"><span class="label label-info">Snipp</span></a> 

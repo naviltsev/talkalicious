@@ -6,6 +6,8 @@
 % my $post_excerpt = $post ? $post->excerpt : '';
 % my $post_id = $post ? $post->id : '';
 
+% my $user_id = session 'logged_in_userid';
+
 % title $post_title;
 
 <div class="row">
@@ -16,6 +18,11 @@
 		% }
 
 		<h2><%= $post_title %></h2>
+
+        <% if ($post->author_id == $user_id) { %>
+            <span><%= include 'shared/post_management_links', post => $post %></span>
+        <% } %>
+
 		<p><%== $post_body %></p>
 
 		%= include 'shared/post_footer', post => $post

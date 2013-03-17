@@ -11,14 +11,14 @@
                 <br />Welcome to <%= $preference_blog_name %>
                 <br /><br />Currently there are no posts.
                 <br /><br />If you are an author, click <a href="<%= url_for 'edit_post' %>">New Post</a> to start writing a piece of art.
+                <br />If you are not, just sign up, then click the same link to write new post.
+
             </p>            
         </div>
     </div>
 % }
 
 % foreach my $post(@$posts) {
-    % next if (!$post->published && !($post->author_id == $user_id));
-
     <div class="row">
         <div class="offset2 span8">
             <div class="row">
@@ -27,6 +27,10 @@
                         <h2 class="muted"><%= $post->title %></h2>
                     <% } else { %>
                         <h2><%= $post->title %></h2>
+                    <% } %>
+
+                    <% if ($post->author_id == $user_id) { %>
+                        <span><%= include 'shared/post_management_links', post => $post %></span>
                     <% } %>
                 </div>
             </div>
@@ -38,9 +42,6 @@
                     </p>
                     <p>
                         <span><a class="btn" href="<%= url_for 'post' %><%= $post->id %>">Read more</a></span>
-                        <% if ($post->author_id == $user_id) { %>
-                            <span class="pull-right"><%= include 'shared/post_management_links', post => $post %></span>
-                        <% } %>
                     </p>
                 </div>
             </div>

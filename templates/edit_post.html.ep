@@ -7,13 +7,29 @@
 % my $post_excerpt = $post ? $post->excerpt : '';
 % my $post_id = $post ? $post->id : '';
 
-<div class="row">
-	<div class="offset2 span8">
+
+<div class="offset2 span8">
+	<div class="row">
 		<h4>Manage post</h4>
+	</div>
+	<% if (defined $post) { %>
+		<div class="row">
+			<% if (!$post->published) { %>
+				<%= link_to "Publish" => '/post_set_visibility/' . $post_id . '/1', class => 'btn btn-mini' %>
+			<% } else { %>
+				<%= link_to "Hide" => '/post_set_visibility/' . $post_id . '/0', class => 'btn btn-mini' %>
+			<% } %>
+			<%= link_to "Delete" => '/delete_post/' . $post_id, class => 'btn btn-mini btn-danger' %>			
+		</div>
+	<% } %>
+	<br />
+	<div class="row">
 		%= form_for '/edit_post' => (method => 'POST') => begin
 			<div class="control-group <% if (validator_error('title')) { %> error <% } %>">
 				%= text_field 'title', $post_title, id => 'post-title', class => 'span8', placeholder => 'Title'
 			</div>
+
+
 
 			<div class="control-group <% if (validator_error('excerpt')) { %> error <% } %>">
 				<label for="excerpt">Excerpt</label>
