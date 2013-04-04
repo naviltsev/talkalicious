@@ -46,6 +46,21 @@ helper schema => sub {
 	);
 };
 
+helper UserModel => sub {
+	shift->schema->resultset('User');
+};
+
+helper PostModel => sub {
+	shift->schema->resultset('Post');
+};
+
+helper CommentModel => sub {
+	shift->schema->resultset('Comment');
+};
+
+helper PreferenceModel => sub {
+	shift->schema->resultset('Preference');
+};
 
 # Hooks
 hook before_dispatch => sub {
@@ -55,11 +70,10 @@ hook before_dispatch => sub {
 	$self->stash(preference_blog_name => $ENV{preference_blog_name});
 	$self->stash(disable_comments => $ENV{disable_comments});
 
-	return unless $self->session('username');
+	return unless $self->session('user_id');
 
 	# TODO: refactor searching user so that we don't need to get user for each request
-	my $user = $self->schema->resultset('User')->find($self->session('logged_in_userid'));
-	return unless $user;
+	my $user = $self->UserModel->find($self->session('user_id'));
 
 	my $theme_preference = $user->preference_value_by_name('theme');
 	$self->stash(preference_theme => $theme_preference->value);
@@ -69,7 +83,7 @@ hook before_dispatch => sub {
 get '/' => sub {
   my $self = shift;
 
-  my @all_posts = $self->schema->resultset("Post")->all_published_posts;
+  my @all_posts = $self->PostModel->all_published_posts;
   $self->render('posts', posts => \@all_posts);
 };
 
@@ -77,12 +91,11 @@ any ['GET', 'POST'] => '/login' => sub {
 	my $self = shift;
 
 	if ($self->req->method eq 'POST') {	
-		my $user = $self->schema->resultset('User')->find({username => $self->param('login'), active => 1});
+		my $user = $self->UserModel->find({username => $self->param('login'), active => 1});
 
 		if ($user && $user->password eq sha1_hex($self->param('password'))) {
-			$self->session(logged_in_userid => $user->id);
-			$self->session(username => $user->username);
-			# $self->redirect_to($self->url_for('post_list'));
+			$self->session(user_id => $user->id);
+			# $self->session(username => $user->username);
 			$self->redirect_to('/');
 		} else {
 			$self->stash(error => 'User does not exist');
@@ -98,7 +111,7 @@ get '/confirmation' => sub {
 
 	return unless $confirmation_key;
 
-	my $user = $self->schema->resultset('User')->find({confirmation_key => $confirmation_key});
+	my $user = $self->UserModel->find({confirmation_key => $confirmation_key});
 	if ($user) {
 		$self->flash(flash => 'Thanks for registering with us. Your account is now active and you can sign in.');
 		$user->active(1);
@@ -127,12 +140,12 @@ any ['GET', 'POST'] => '/signup' => sub {
 		return;
 	}
 
-	if ($self->schema->resultset('User')->find({username => $self->param('username')})) {
+	if ($self->UserModel->find({username => $self->param('username')})) {
 		$self->stash(error => 'This username is taken, please choose another one');
 		return;	
 	}
 	
-	if ($self->schema->resultset('User')->find({email => $self->param('email')})) {
+	if ($self->UserModel->find({email => $self->param('email')})) {
 		$self->stash(error => 'This email address is taken, please choose another one');
 		return;	
 	}
@@ -143,7 +156,7 @@ any ['GET', 'POST'] => '/signup' => sub {
 	}
 
 
-	my $user = $self->schema->resultset('User')->create({
+	my $user = $self->UserModel->create({
 		username => $self->param('username'), 
 		password => sha1_hex($self->param('password1')),
 		email => $self->param('email'),
@@ -155,8 +168,8 @@ any ['GET', 'POST'] => '/signup' => sub {
 
 
 
-	my $preferences_available = $self->schema->resultset('Preference');
-	$user->populate_empty_preferences($preferences_available);
+	my $preferences = $self->PreferenceModel;
+	$user->populate_empty_preferences($preferences);
 
 	my $username = $user->fullname;
 	my $base_url = $self->req->url->base || 'http://localhost:3000';
@@ -189,8 +202,8 @@ any ['GET', 'POST'] => '/signup' => sub {
 get '/logout' => sub {
 	my $self = shift;
 
-	$self->session(logged_in_userid => undef);
-	$self->session(username => undef);
+	$self->session(user_id => undef);
+	# $self->session(username => undef);
 
 	$self->redirect_to('/');
 };
@@ -198,7 +211,7 @@ get '/logout' => sub {
 get '/post/:post_id' => sub {
 	my $self = shift;
 
-	my $post = $self->schema->resultset('Post')->find($self->param('post_id'));
+	my $post = $self->PostModel->find($self->param('post_id'));
 	$self->stash(post => $post);
 
 	return $self->render(text => '404')
@@ -211,7 +224,7 @@ get '/post/:post_id' => sub {
 #
 under sub {
 	my $self = shift;
-	if ($self->session('logged_in_userid')) {
+	if ($self->session('user_id')) {
 		return 1;
 	}
 	
@@ -221,13 +234,13 @@ under sub {
 post '/add_comment' => sub {
 	my $self = shift;
 
-	my $post = $self->schema->resultset('Post')->find($self->param('post_id'));
+	my $post = $self->PostModel->find($self->param('post_id'));
 
-	my $comment = $self->schema->resultset('Comment')->create({
+	my $comment = $self->CommentModel->create({
 		body => $self->param('comment'),
 		added_on => DateTime->now,
 		post_id => $post->id,
-		author_id => $self->session('logged_in_userid'),
+		author_id => $self->session('user_id'),
 		# parent_comment_id => undef
 	});
 
@@ -237,7 +250,7 @@ post '/add_comment' => sub {
 get '/posts' => sub {
 	my $self = shift;
 
-	my @posts = $self->schema->resultset('Post')->posts_by_author(author_id => $self->session('logged_in_userid'));
+	my @posts = $self->PostModel->posts_by_author(author_id => $self->session('user_id'));
 	$self->render('posts', posts => \@posts);
 } => 'post_list';
 
@@ -247,7 +260,7 @@ get '/edit_post' => sub {
 	my $post_id = $self->param('post_id');
 
 	if ($post_id) {
-		my $post = $self->schema->resultset('Post')->find($post_id);
+		my $post = $self->PostModel->find($post_id);
 
 		$self->stash(post => $post);
 
@@ -267,7 +280,7 @@ post '/edit_post' => sub {
 	return unless $self->validate($val);
 
 	if ($post_id) { # edit post
-		my $post = $self->schema->resultset('Post')->find($post_id);
+		my $post = $self->PostModel->find($post_id);
 
 		return $self->render(text => '404')
 			unless $post;
@@ -283,12 +296,12 @@ post '/edit_post' => sub {
 		my $body = $self->param('body');
 		my $excerpt = $self->param('excerpt');
 
-		my $post = $self->schema->resultset('Post')->create({
+		my $post = $self->PostModel->create({
 			title => $self->param('title'),
 			excerpt => $self->param('excerpt'),
 			body => $self->param('body'),
 			added_on => DateTime->now,
-			author_id => $self->session('logged_in_userid'),
+			author_id => $self->session('user_id'),
 			published => 0
 		});
 	}
@@ -300,8 +313,9 @@ get '/delete_post/:post_id' => sub {
 	my $self = shift;
 	my $post_id = $self->param('post_id');
 
-	my $post = $self->schema->resultset('Post')->find($post_id);
+	my $post = $self->PostModel->find($post_id);
 
+	# TODO: fix this line, there is no Post->am_i_author method
 	return unless $post->am_i_author($self->session('logged_in_username'));
 
 	$post->delete if $post;
@@ -317,7 +331,7 @@ get '/post_set_visibility/:post_id/:should_hide' => sub {
 	return $self->render(text => '404')
 		unless ($publish eq '0' || $publish eq '1');
 
-	my $post = $self->schema->resultset('Post')->find($post_id);
+	my $post = $self->PostModel->find($post_id);
 	if ($post) {
 		$post->published($publish);
 		$post->update;
@@ -333,7 +347,7 @@ any '/settings' => sub {
 	my @themes = split " ", $ENV{preference_themes};
 	$self->stash(preference_themes => \@themes);
 
-	my $user = $self->schema->resultset('User')->find($self->session('logged_in_userid'));
+	my $user = $self->UserModel->find($self->session('user_id'));
 	return unless $user;
 
 	# Themes

@@ -6,7 +6,7 @@
 % my $post_excerpt = $post ? $post->excerpt : '';
 % my $post_id = $post ? $post->id : '';
 
-% my $user_id = session 'logged_in_userid';
+% my $user_id = session 'user_id';
 
 % title $post_title;
 
@@ -34,7 +34,7 @@
 		% }
 		
 
-		% if ($self->session('logged_in_userid') && !$disable_comments) {
+		% if ($self->session('user_id') && !$disable_comments) {
 			<div class="row">
 				<div class="span4 well pull-left">
 				    <form accept-charset="utf-8" action="/add_comment" method="post">

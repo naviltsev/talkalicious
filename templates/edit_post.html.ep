@@ -3,6 +3,8 @@
 
 % my $post = stash 'post';
 % my $post_title = $post ? $post->title : '';
+%# my $post_tags = $post ? $post->tags : '';
+% my $post_tags = 'tag1, tag2, tag3';
 % my $post_body = $post ? $post->body : '';
 % my $post_excerpt = $post ? $post->excerpt : '';
 % my $post_id = $post ? $post->id : '';
@@ -25,11 +27,16 @@
 	<br />
 	<div class="row">
 		%= form_for '/edit_post' => (method => 'POST') => begin
+
 			<div class="control-group <% if (validator_error('title')) { %> error <% } %>">
+				<label for="title">Title</label>
 				%= text_field 'title', $post_title, id => 'post-title', class => 'span8', placeholder => 'Title'
 			</div>
 
-
+			<div class="control-group <% if (validator_error('tags')) { %> error <% } %>">
+				<label for="title">Tags</label>
+				%= text_field 'tags', $post_tags, id => 'post-tags', class => 'span8', placeholder => 'Tags list'
+			</div>
 
 			<div class="control-group <% if (validator_error('excerpt')) { %> error <% } %>">
 				<label for="excerpt">Excerpt</label>

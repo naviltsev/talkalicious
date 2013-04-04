@@ -2,7 +2,7 @@
 % title 'Posts';
 
 % use Date::Manip;
-% my $user_id = $self->session('logged_in_userid');
+% my $user_id = $self->session('user_id');
 
 % unless (scalar @$posts) {
     <div class="row">

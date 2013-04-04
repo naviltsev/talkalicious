@@ -1,4 +1,4 @@
 % my $post_id = $post->id;
-<% if ($post->author_id eq session->{logged_in_userid}) { %>
+<% if ($post->author_id eq session->{user_id}) { %>
 	<%= link_to "Edit" => '/edit_post/?post_id=' . $post_id, class => 'btn btn-mini' %>
 <% } %>

@@ -24,7 +24,7 @@
 
 			%= form_for 'settings' => (method => 'POST') => begin
 				<fieldset>
-					<legend>Profile settings (<%= session->{username} %>)</legend>
+					<legend>Profile settings</legend>
 
 					<label for="fullname">Full name</label>
 					%= text_field 'fullname', $user->fullname
