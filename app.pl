@@ -41,7 +41,7 @@ plugin 'recaptcha' => {
 };
 
 helper schema => sub {
-	return Talkalicious::Schema->connect('dbi:mysql:dbname=talkalicious', 'root', '', 
+	return Talkalicious::Schema->connect($ENV{db_dsn}, $ENV{db_username}, $ENV{db_password}, 
 		{ AutoCommit => 1, RaiseError => 1, mysql_enable_utf8 => 1}
 	);
 };

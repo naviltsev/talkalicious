@@ -8,10 +8,10 @@ $ENV{preference_themes}				= "Default Amelia Cerulean Cosmo Cyborg Journal Reada
 $ENV{preference_blog_admin}         = "admin";
 $ENV{disable_comments}              = 1;
 
-# KiokuDB backend
-$ENV{kiokudb_backend_dsn}			= "dbi:SQLite:dbname=blog.db";
-$ENV{kiokudb_backend_username}		= "";
-$ENV{kiokudb_backend_password}		= "";
+# DB backend
+$ENV{db_dsn}                        = "dbi:mysql:dbname=talkalicious";
+$ENV{db_username}                   = "root";
+$ENV{db_password}                   = "";
 
 # Recaptch settings
 $ENV{recaptcha_public_key} 			= '6LeqINoSAAAAAPiP1RACGh5rilIkHTDsxwusQRjn';
@@ -26,6 +26,8 @@ $ENV{email_transport_username}		= "";
 $ENV{email_transport_password}		= "";
 $ENV{email_transport_port}			= 587;
 $ENV{email_subjects_account_confirmation} = "mkdb-blog-perl account confirmation";
+
+$ENV{running_with_heroku}           = 0;
 
 # debug 
 # set to true to ignore some parts of the app
