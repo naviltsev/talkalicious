@@ -8,7 +8,6 @@ use 5.010;
 
 use Talkalicious::Schema;
 
-use DDP;
 use Data::Dumper;
 use Digest::SHA qw(sha1_hex);
 use Email::Sender::Transport::SMTP::TLS;
