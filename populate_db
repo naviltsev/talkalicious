@@ -1,11 +1,18 @@
 #!/usr/bin/perl -w
-
 use strict;
+use feature 'say';
 use lib "./lib";
-
 use Talkalicious::Schema;
+use Getopt::Long;
 
-my $schema = Talkalicious::Schema->connect("dbi:mysql:talkalicious_2", "root", "");
-$schema->deploy();
+GetOptions('dsn=s' => \my $dsn, 'username=s' => \my $user, 'password=s' => \my $passwd) or die usage();
 
+my $schema = Talkalicious::Schema->connect($dsn, $user, $passwd);
+say "Deploying schema...";
+$schema->deploy;
 
+say "Done";
+
+sub usage {
+    say 'usage: populate_db --dsn $dsn --username $user --password $passwd\n';
+}

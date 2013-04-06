@@ -20,6 +20,7 @@ WriteMakefile(
     'DBD::Pg' => '0', # errrr, this is for Heroku :)
     'DBIx::Class' => '0',
     'DateTime::Format::MySQL' => '0',
+    'DateTime::Format::Pg' => '0',
   },
   test      => {TESTS => 't/*.t'}
 );
