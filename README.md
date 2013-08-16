@@ -1,10 +1,10 @@
-mkdb-blog-perl
+talkalicious
 ==============
 
 General notes
 -------------
 
-Training project to build up a clean and simple blog engine using `Moose/KiokuDB` in `Perl`.
+Training project to build up a clean and simple blog engine using `Moose/DBIC` in `Perl`.
 
 I use [bower](https://github.com/twitter/bower) from Twitter for package management.
 
